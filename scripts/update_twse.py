@@ -15,12 +15,12 @@ def fetch_month(year, month):
     url = f'https://www.twse.com.tw/indicesReport/FMTQIK?response=json&date={year:04d}{month:02d}01'
     req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (compatible; StockIntelligence/2.0)', 'Accept': 'application/json'})
     with urllib.request.urlopen(req, timeout=25) as response:
-      raw = response.read()
-print("HTTP 狀態:", response.status)
-print("Content-Type:", response.headers.get("Content-Type"))
-print("回應長度:", len(raw))
-print("回應前200字:", repr(raw[:200]))
-payload = json.loads(raw)
+        raw = response.read()
+        print("HTTP 狀態:", response.status)
+        print("Content-Type:", response.headers.get("Content-Type"))
+        print("回應長度:", len(raw))
+        print("回應前200字:", repr(raw[:200]))
+        payload = json.loads(raw)
     if payload.get('stat') != 'OK' or not isinstance(payload.get('data'), list):
         raise ValueError(f'TWSE response not OK for {year}-{month}: {payload.get("stat")}')
     fields = payload.get('fields', [])
