@@ -1,76 +1,112 @@
-"""Retrieve TWSE official daily TAIEX historical closes. No invented fallback data."""
+"""Fetch verified TAIEX closes from FinMind; never invent market data."""
 import json
 import os
 import time
+import urllib.error
+import urllib.parse
 import urllib.request
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parents[1]
-TARGET = ROOT / 'data' / 'taiex.json'
-NOW = datetime.now(ZoneInfo('Asia/Taipei'))
+TARGET = ROOT / "data" / "taiex.json"
+NOW = datetime.now(ZoneInfo("Asia/Taipei"))
+API = "https://api.finmindtrade.com/api/v4/data"
 
-def fetch_month(year, month):
-    url = f'https://www.twse.com.tw/indicesReport/FMTQIK?response=json&date={year:04d}{month:02d}01'
-    req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0 (compatible; StockIntelligence/2.0)', 'Accept': 'application/json'})
-    with urllib.request.urlopen(req, timeout=25) as response:
-        raw = response.read()
-        print("HTTP 狀態:", response.status)
-        print("Content-Type:", response.headers.get("Content-Type"))
-        print("回應長度:", len(raw))
-        print("回應前200字:", repr(raw[:200]))
-        payload = json.loads(raw)
-    if payload.get('stat') != 'OK' or not isinstance(payload.get('data'), list):
-        raise ValueError(f'TWSE response not OK for {year}-{month}: {payload.get("stat")}')
-    fields = payload.get('fields', [])
-    def find(*keys):
-        for i, field in enumerate(fields):
-            if any(k in field for k in keys): return i
-        raise ValueError(f'Missing TWSE field {keys}: {fields}')
-    date_i = find('日期')
-    close_i = find('發行量加權股價指數', '加權指數')
-    value_i = next((i for i, f in enumerate(fields) if '成交金額' in f), None)
-    out=[]
-    for row in payload['data']:
-        try:
-            roc, m, d = [int(x) for x in row[date_i].strip().split('/')]
-            date=f'{roc+1911:04d}-{m:02d}-{d:02d}'
-            close=float(row[close_i].replace(',', ''))
-            value=float(row[value_i].replace(',', '')) if value_i is not None and row[value_i] not in ('--','') else None
-            out.append({'date':date,'close':close,'trade_value':value})
-        except (ValueError, IndexError, TypeError):
+
+def fetch_day(day, token):
+    params = urllib.parse.urlencode({
+        "dataset": "TaiwanVariousIndicators5Seconds",
+        "start_date": day,
+    })
+    request = urllib.request.Request(
+        API + "?" + params,
+        headers={"Authorization": "Bearer " + token, "Accept": "application/json"},
+    )
+    with urllib.request.urlopen(request, timeout=45) as response:
+        if "json" not in response.headers.get("Content-Type", "").lower():
+            raise ValueError("FinMind returned non-JSON content")
+        payload = json.load(response)
+    if not isinstance(payload, dict) or payload.get("status") != 200:
+        raise ValueError("FinMind API error: " + str(payload.get("msg", "unknown"))[:200])
+    records = payload.get("data")
+    if not isinstance(records, list):
+        raise ValueError("FinMind response has no data list")
+    valid = []
+    for item in records:
+        if not isinstance(item, dict):
             continue
-    return out
+        stamp = str(item.get("date", ""))
+        if not stamp.startswith(day + " "):
+            continue
+        try:
+            close = float(item["TAIEX"])
+        except (KeyError, ValueError, TypeError):
+            continue
+        if close > 0:
+            valid.append((stamp, close))
+    if not valid:
+        return None  # Market holiday or data not yet available
+    stamp, close = max(valid, key=lambda x: x[0])
+    # The final 13:30 index reading is the official closing reading.
+    # Never treat an intraday reading as a completed daily close.
+    if stamp[11:16] != "13:30":
+        raise ValueError(f"No 13:30 closing reading for {day}; latest={stamp}")
+    return {"date": day, "close": close, "trade_value": None}
 
-def months_back(count):
-    y,m=NOW.year,NOW.month
-    for _ in range(count):
-        yield y,m
-        m-=1
-        if m==0:y,m=y-1,12
 
 def main():
-    previous={}
-    if TARGET.exists():
-        try: previous={r['date']:r for r in json.loads(TARGET.read_text())['rows']}
-        except (ValueError,KeyError,TypeError): pass
-    failures=[];successes=0
-    for y,m in months_back(3):
-        try:
-            rows=fetch_month(y,m)
-            for r in rows: previous[r['date']]=r
-            successes+=1
-        except Exception as exc:
-            failures.append(f'{y}-{m:02d}: {exc}')
-        time.sleep(0.8)
-    if successes==0:
-        raise RuntimeError('No TWSE month could be fetched; refusing to publish fake/stale overwrite. '+ '; '.join(failures))
-    rows=sorted(previous.values(),key=lambda r:r['date'])[-120:]
-    if not rows: raise RuntimeError('No valid trading rows')
-    data={'source':'TWSE official indicesReport/FMTQIK','updated_at':NOW.isoformat(timespec='seconds'),'rows':rows}
-    TARGET.parent.mkdir(parents=True,exist_ok=True)
-    TARGET.write_text(json.dumps(data,ensure_ascii=False,indent=2)+'\n')
-    print(f'Saved {len(rows)} rows through {rows[-1]["date"]}. Month failures: {failures}')
+    token = os.environ.get("FINMIND_TOKEN", "").strip()
+    if not token:
+        raise RuntimeError("FINMIND_TOKEN is missing from environment")
 
-if __name__=='__main__':main()
+    previous = {}
+    if TARGET.exists():
+        try:
+            old = json.loads(TARGET.read_text(encoding="utf-8"))
+            for item in old.get("rows", []):
+                if isinstance(item, dict) and item.get("date") and item.get("close") is not None:
+                    previous[item["date"]] = item
+        except (OSError, ValueError, TypeError):
+            pass
+
+    # Start with a small, safe test window. Later runs accumulate history.
+    failures = []
+    fetched = 0
+    for offset in range(14, -1, -1):
+        day = (NOW.date() - timedelta(days=offset))
+        if day.weekday() >= 5:
+            continue
+        # Do not publish today's index before the market has closed.
+        if day == NOW.date() and (NOW.hour, NOW.minute) < (14, 0):
+            continue
+        day_text = day.isoformat()
+        try:
+            row = fetch_day(day_text, token)
+            if row:
+                previous[day_text] = row
+                fetched += 1
+                print(f"OK {day_text}: {row['close']}")
+            else:
+                print(f"No data {day_text} (holiday or unavailable)")
+        except (urllib.error.URLError, ValueError, KeyError) as exc:
+            failures.append(f"{day_text}: {exc}")
+        time.sleep(0.3)
+
+    if fetched == 0:
+        raise RuntimeError("No verified FinMind closing data; refusing to overwrite. " + "; ".join(failures))
+
+    rows = sorted(previous.values(), key=lambda r: r["date"])[-120:]
+    output = {
+        "source": "FinMind TaiwanVariousIndicators5Seconds (13:30 TAIEX)",
+        "updated_at": NOW.isoformat(timespec="seconds"),
+        "rows": rows,
+    }
+    TARGET.parent.mkdir(parents=True, exist_ok=True)
+    TARGET.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"Saved {len(rows)} rows; new verified closes: {fetched}; failures: {failures}")
+
+
+if __name__ == "__main__":
+    main()
