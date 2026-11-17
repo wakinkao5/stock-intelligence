@@ -1,6 +1,6 @@
 {
   "source": "FinMind TaiwanVariousIndicators5Seconds (13:30 TAIEX)",
-  "updated_at": "2026-11-16T18:26:08+08:00",
+  "updated_at": "2026-11-17T17:41:11+08:00",
   "quarter_start": "2026-10-01",
   "rows": [
     {
@@ -156,6 +156,11 @@
     {
       "date": "2026-11-16",
       "close": 41040.08,
+      "trade_value": null
+    },
+    {
+      "date": "2026-11-17",
+      "close": 40092.11,
       "trade_value": null
     }
   ]
