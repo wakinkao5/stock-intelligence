@@ -1,6 +1,6 @@
 {
-  "source": "FinMind TaiwanVariousIndicators5Seconds (13:30 TAIEX)",
-  "updated_at": "2026-11-24T20:45:49+08:00",
+  "source": "TWSE official FMTQIK daily market statistics; earlier rows pending turnover verification",
+  "updated_at": "2026-11-24T21:30:00+08:00",
   "quarter_start": "2026-10-01",
   "rows": [
     {
@@ -186,7 +186,7 @@
     {
       "date": "2026-11-24",
       "close": 40122.35,
-      "trade_value": null
+      "trade_value": 432559877529
     }
   ]
 }
