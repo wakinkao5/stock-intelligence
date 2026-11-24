@@ -1,0 +1,33 @@
+name: 更新期交所臺指期夜盤官方統計
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/update_night_futures.py'
+  schedule:
+    - cron: '40 23 * * 1-5' # 07:40 Asia/Taipei, after night session ends
+permissions:
+  contents: write
+concurrency:
+  group: night-futures-data
+  cancel-in-progress: false
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch and validate official TX after-hours report
+        run: python scripts/update_night_futures.py
+      - name: Commit verified night report
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add data/night-futures.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'Update verified TX after-hours report'
+            git push
+          fi
