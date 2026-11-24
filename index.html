@@ -114,7 +114,18 @@ function forecastSignal(rows){
 }
 function nextWeekdays(iso,n){const days=[];let d=new Date(iso+'T12:00:00+08:00');for(let k=0;k<18&&days.length<n;k++){d=new Date(d.getTime()+86400000);const wd=d.getUTCDay();if(wd!==0&&wd!==6)days.push(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(d));}return days;}
 function renderNextForecast(rows){const f=forecastSignal(rows),label=document.getElementById('forecast-label'),icon=document.getElementById('forecast-icon'),info=document.getElementById('forecast-info');const dates=nextWeekdays(rows.at(-1).date,1);if(!f){label.textContent='樣本不足';icon.textContent='☁️';info.textContent='至少需要11個收盤價。';return;}label.textContent=f.label;icon.textContent=f.icon;info.replaceChildren();const lines=[`預測交易日：${dates[0]}（遇休市順延）`,`模型方向：${f.label}｜動能分數 ${f.score.toFixed(2)}`,`近5日 ${fmtPct(f.r5)}；近10日 ${fmtPct(f.r10)}`,`計算方法：5日55%＋10日30%＋20日15%的動能加權。`,`僅供學習的統計基準，未納入國際消息；不是已驗證AI預測。`];lines.forEach(t=>{const x=document.createElement('p');x.textContent=t;info.append(x)});}
-function renderWeekly(rows){const el=document.getElementById('weekly-forecast'),f=forecastSignal(rows);if(!f){el.textContent='歷史資料不足，無法建立五日趨勢。';return;}const dates=nextWeekdays(rows.at(-1).date,5);el.replaceChildren();const title=document.createElement('b');title.textContent='未來五個平日｜同一組動能情境';el.append(title);const tip=document.createElement('p');tip.className='small muted';tip.textContent='以下僅展示同一組歷史動能情境，並非逐日預測；日期只排除週末，遇國定休市須順延。';el.append(tip);const grid=document.createElement('div');grid.className='five';dates.forEach((date,i)=>{const d=document.createElement('div');d.className='tile';const wx=document.createElement('div');wx.style.fontSize='26px';wx.textContent=f.icon;const day=document.createElement('b');day.textContent=date.slice(5);const desc=document.createElement('div');desc.className='small';desc.textContent=f.label;d.append(day,wx,desc);grid.append(d)});el.append(grid);const note=document.createElement('p');note.className='small';note.textContent=`目前基準：近5日 ${fmtPct(f.r5)}、近10日 ${fmtPct(f.r10)}；動能分數 ${f.score.toFixed(2)}。每天收盤重新計算，後續需加入國際行情及正式預測驗證。`;el.append(note);}
+function renderWeekly(rows){
+ const el=document.getElementById('weekly-forecast'),f=forecastSignal(rows);
+ el.replaceChildren();
+ const title=document.createElement('b');title.textContent='未來五個交易日｜風險觀察';el.append(title);
+ const p=document.createElement('p');p.className='small';
+ if(!f){p.textContent='有效歷史收盤資料不足，暫無可計算的動能訊號。';el.append(p);return;}
+ p.textContent='目前歷史動能：'+f.label+'（分數 '+f.score.toFixed(2)+'）。這是單一時點的統計結果，不代表未來五天會每天同方向漲跌。';el.append(p);
+ const risk=document.createElement('p');risk.className='small muted';
+ risk.textContent='觀察重點：① 美國科技與半導體市場 ② 台股成交值變化 ③ 近5日與20日走勢 ④ 重大消息與休市。未取得可核對的國際報價時，不把它計入研判。';el.append(risk);
+ const note=document.createElement('p');note.className='small muted';
+ note.textContent='近5日 '+fmtPct(f.r5)+'；近10日 '+fmtPct(f.r10)+(f.r20===null?'':'；近20日 '+fmtPct(f.r20))+'。本區不是正式08:40盤前預測，不列入命中率。';el.append(note);
+}
 
 loadOfficial();
 document.getElementById('refresh-now').addEventListener('click',loadOfficial);
