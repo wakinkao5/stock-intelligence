@@ -30,7 +30,7 @@ def main():
     parser=TableReader();parser.feed(html)
     text=" ".join(parser.all_text)
     # A trading date on the report is the next regular-session date.
-    match=re.search(r"(20\\d{2})[/-](\\d{1,2})[/-](\\d{1,2})\\s*15:00\\s*[~～至-]+\\s*(?:次日)?\\s*05:00",text)
+    match=re.search(r"(20\d{2})[/-](\d{1,2})[/-](\d{1,2})\s*15:00\s*[~～至-]+\s*(?:次日)?\s*05:00",text)
     if not match: raise RuntimeError("Cannot verify after-hours session and trading date; refusing to publish")
     trade_date="-".join([match.group(1),match.group(2).zfill(2),match.group(3).zfill(2)])
     today=datetime.now(ZoneInfo("Asia/Taipei")).date()
@@ -39,7 +39,7 @@ def main():
         raise RuntimeError("Report trading date out of freshness range")
     contracts=[]
     for cells in parser.rows:
-        if len(cells)<8 or cells[0]!="TX" or not re.fullmatch(r"20\\d{4}",cells[1]):continue
+        if len(cells)<8 or cells[0]!="TX" or not re.fullmatch(r"20\d{4}",cells[1]):continue
         try:
             last=float(cells[5].replace(",",""))
             change=float(re.sub(r"[^0-9.+-]","",cells[6].replace(",","")))
@@ -57,6 +57,6 @@ def main():
         old=json.loads(TARGET.read_text(encoding="utf-8"))
         if old.get("trade_date","")>trade_date:raise RuntimeError("Existing report is newer")
     TARGET.parent.mkdir(exist_ok=True,parents=True)
-    TARGET.write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\\n",encoding="utf-8")
+    TARGET.write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("Official TX after-hours report:",data)
 if __name__=="__main__":main()
