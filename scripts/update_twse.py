@@ -119,6 +119,36 @@ def main():
             time.sleep(0.25)
         day+=timedelta(days=1)
     if errors:raise RuntimeError('Backfill incomplete, refusing partial commit: '+'; '.join(errors[:8]))
+    # The legacy FinMind 5-second series is NOT accepted as verified TAIEX.
+    # Replace its closing prices only with official TWSE FMTQIK values.
+    official_closes = {}
+    for month in sorted({key[:7] for key in previous}):
+        url = 'https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?response=json&date=' + month.replace('-', '') + '01'
+        try:
+            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0', 'Accept': 'application/json'})
+            with urllib.request.urlopen(req, timeout=30) as response:
+                payload = json.load(response)
+            fields = [str(v).replace(' ', '') for v in payload.get('fields', [])]
+            date_col = next(i for i, v in enumerate(fields) if '日期' in v)
+            index_col = next(i for i, v in enumerate(fields) if '發行量加權股價指數' in v)
+            for row in payload.get('data', []):
+                try:
+                    yy, mm, dd = map(int, str(row[date_col]).split('/'))
+                    key = f'{yy + 1911 if yy < 1911 else yy:04d}-{mm:02d}-{dd:02d}'
+                    close = float(str(row[index_col]).replace(',', ''))
+                    if close > 0:
+                        official_closes[key] = close
+                except (ValueError, IndexError, TypeError):
+                    continue
+        except (urllib.error.URLError, ValueError, StopIteration, TimeoutError) as exc:
+            print('WARNING official index fetch:', month, str(exc))
+    if not official_closes:
+        raise RuntimeError('No official TWSE index closes; refusing to publish unverified FinMind index')
+    # Drop old unverified rows instead of keeping incorrect historical chart values.
+    previous = {key: {'date': key, 'close': close, 'trade_value': None}
+                for key, close in official_closes.items() if key <= end.isoformat()}
+    if not previous:
+        raise RuntimeError('No official TWSE rows in eligible date range')
     if not previous:raise RuntimeError('No verified rows')
     enriched = enrich_twse_turnover(previous, end)
     if not enriched and not any(row.get('trade_value') is not None for row in previous.values()):
@@ -129,7 +159,7 @@ def main():
         print(f'WARNING: latest verified close ({latest}) is older than eligible date ({end}); possible holiday, provider delay, or missing close.')
     else:
         print('Market data freshness: latest eligible date is present.')
-    result={'source':'FinMind TaiwanVariousIndicators5Seconds (13:30 TAIEX)', 'updated_at':NOW.isoformat(timespec='seconds'),'quarter_start':'2026-10-01','rows':sorted(previous.values(),key=lambda r:r['date'])[-130:]}
+    result={'source':'TWSE FMTQIK official weighted index and trading value', 'updated_at':NOW.isoformat(timespec='seconds'),'quarter_start':'2026-10-01','rows':sorted(previous.values(),key=lambda r:r['date'])[-130:]}
     TARGET.parent.mkdir(parents=True,exist_ok=True)
     TARGET.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print('Saved',len(result['rows']),'verified trading days; added',added)
