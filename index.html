@@ -109,60 +109,30 @@
  .forecast-prob{font-size:9px}
 }
 
-/* V3.15.6: weather forecast overlay inside full-width trend chart */
+/* Keep the forecast in the chart frame, above the full-width plot. */
 .index-forecast-row{display:block;margin:7px 0 5px}
 .index-quote{width:100%}
-.chart-shell{position:relative;width:100%;min-width:0;margin-top:5px;overflow:visible}
-.chart-shell .trend{display:block;width:100%;max-width:100%;height:170px;margin:0}
-.chart-shell .forecast-chip{position:absolute;z-index:2;top:6px;right:7px;left:auto;width:max-content;max-width:min(220px,66%);min-width:0;background:rgba(255,255,255,.96);border-radius:12px;box-shadow:0 2px 9px #19345418}
-.chart-shell .forecast-chip summary{display:flex;gap:7px;align-items:center;padding:7px 9px;font-size:12px;line-height:1.3}
-.chart-shell .forecast-chip summary .wxicon{font-size:27px;line-height:1}
-.chart-shell .forecast-chip[open]{max-width:min(265px,88%);width:min(265px,88%)}
-.chart-shell .forecast-info{max-height:110px;overflow:auto}
+.chart-shell{display:grid;grid-template-columns:minmax(0,1fr);row-gap:6px;margin:7px 0 0;padding-top:8px;background:#fbfcfe;border-radius:12px}
+.chart-shell .trend{display:block;width:100%;height:170px;margin:0}
+.chart-shell .forecast-chip{position:static;justify-self:end;width:min(230px,calc(100% - 16px));max-width:none;margin-right:8px;border-radius:12px}
+.chart-shell .forecast-chip[open]{width:min(290px,calc(100% - 16px));max-width:none}
+.chart-shell .forecast-chip summary{display:grid;gap:5px;padding:10px 11px;white-space:normal}
+.forecast-card-head{display:flex;align-items:center;flex-wrap:wrap;gap:4px 7px}
+.forecast-card-title{font-size:12px;color:#243a5c}
+.forecast-card-state{font-size:10px;color:#475569;background:#edf2f8;border-radius:8px;padding:2px 5px;white-space:nowrap}
+.forecast-card-main{display:flex;align-items:center;gap:8px}
+.chart-shell .forecast-chip summary .wxicon{font-size:27px;line-height:1.1}
+.forecast-card-direction{font-size:18px;font-weight:800;color:#263d5e}
+.chart-shell .forecast-prob,.forecast-card-update{font-size:11px;line-height:1.4;white-space:normal;color:#52647a}
+.chart-shell .forecast-info{overflow-wrap:anywhere;border-top:1px solid #e5ebf2;padding-top:5px}
 @media(max-width:760px){
- .index-forecast-row{margin:7px 0 4px}
  .index-forecast-row #index-value{font-size:clamp(29px,7.7vw,39px)}
  .index-forecast-row #index-change{font-size:clamp(12px,3.35vw,16px)}
- .chart-shell{margin-top:5px}
- .chart-shell .trend{height:170px}
- .chart-shell .forecast-chip{top:5px;right:5px;max-width:min(184px,62%)}
- .chart-shell .forecast-chip summary{padding:6px 7px;gap:5px;font-size:11px}
- .chart-shell .forecast-chip summary .wxicon{font-size:23px}
- .chart-shell .forecast-chip[open]{max-width:min(245px,86%);width:min(245px,86%)}
- .chart-shell .forecast-info{max-height:100px}
+ .chart-shell .forecast-chip{width:min(208px,calc(100% - 16px))}
 }
-@media(max-width:380px){
- .chart-shell .forecast-chip{max-width:165px}
- .chart-shell .forecast-chip summary{font-size:10px;padding:5px 6px}
- .chart-shell .forecast-chip summary .wxicon{font-size:20px}
-}
-
-/* V3.15.6: expanded forecast card, not a fabricated live signal */
-.chart-shell .forecast-chip{width:218px;max-width:calc(100% - 12px);top:8px;right:7px;background:rgba(255,255,255,.97);border-radius:14px}
-.chart-shell .forecast-chip summary{display:flex;flex-direction:column;align-items:stretch;gap:5px;padding:11px 12px;font-size:12px;white-space:normal}
-.forecast-card-head{display:flex;align-items:center;justify-content:space-between;gap:6px}
-.forecast-card-title{font-size:12px;font-weight:750;color:#243a5c;white-space:nowrap}
-.forecast-card-state{font-size:10px;color:#64748b;background:#edf2f8;border-radius:8px;padding:3px 5px;white-space:nowrap}
-.forecast-card-main{display:flex;align-items:center;gap:9px}
-.chart-shell .forecast-chip summary .wxicon{font-size:31px;line-height:1.1}
-.forecast-card-direction{font-size:19px;font-weight:800;color:#263d5e}
-.chart-shell .forecast-prob{font-size:11px;white-space:normal;line-height:1.3}
-.forecast-card-update{font-size:10px;color:#64748b;line-height:1.35}
-.chart-shell .forecast-chip[open]{width:min(265px,calc(100% - 12px));max-width:calc(100% - 12px)}
-@media(max-width:760px){
- .chart-shell .forecast-chip{width:190px;max-width:calc(100% - 10px);top:6px;right:5px}
- .chart-shell .forecast-chip summary{padding:9px 10px;gap:4px}
- .forecast-card-title{font-size:11px}
- .forecast-card-state{font-size:9px;padding:3px 4px}
- .chart-shell .forecast-chip summary .wxicon{font-size:27px}
- .forecast-card-direction{font-size:17px}
- .chart-shell .forecast-prob{font-size:10px}
- .forecast-card-update{font-size:9px}
-}
-@media(max-width:380px){.chart-shell .forecast-chip{width:174px}.chart-shell .forecast-chip summary{padding:8px}.forecast-card-title{font-size:10px}.forecast-card-direction{font-size:16px}}
 </style></head><body><header><div class="wrap"><div class="top"><div><div class="eyebrow">TAIWAN STOCK INTELLIGENCE</div><h1>台股智慧決策中心</h1><div class="small muted">市場情報・AI 研判・投資決策輔助</div></div><span class="pill">V3.15.6</span></div><nav class="nav" aria-label="主要導覽"><button class="active" data-page="home">首頁</button><button data-page="stock">個股健檢</button><button data-page="personal">個人資產</button><button data-page="goal">配息目標</button></nav></div></header><main class="wrap">
 <div class="notice" style="margin:3px 0 15px"><div class="refreshbar"><div><b>市場資料</b>｜<span id="data-status">正在讀取已發布的收盤資料…</span><div class="small muted" id="refresh-status" aria-live="polite">開啟網站會自動檢查；按「立即更新行情」可重新讀取已發布的日盤、夜盤與國際資料。</div></div><button class="action primary" id="refresh-now" type="button">↻ 立即更新行情</button></div></div>
-<section id="home"><div class="grid"><div><article class="card"><div class="cardhead"><h2>台灣加權指數</h2><span class="pill" id="index-source">等待資料</span></div><div class="index-forecast-row"><div class="index-quote"><div class="index" id="index-value">—</div><div id="index-change" class="muted"><b>等待收盤資料</b></div></div></div><div class="chart-shell"><details class="forecast-chip" id="forecast-chip"><summary aria-label="查看下一交易日預測詳情"><span class="forecast-card-head"><span class="forecast-card-title" id="forecast-day">隔日動態預測</span><span class="forecast-card-state" id="forecast-state">尚未鎖定</span></span><span class="forecast-card-main"><span class="wxicon" id="forecast-icon">☁️</span><span class="forecast-card-direction" id="forecast-label">待研判</span></span><span class="forecast-prob" id="forecast-prob">預估機率：待模型驗證</span><span class="forecast-card-update" id="forecast-updated">評估依據：等待資料</span></summary><div class="forecast-info" id="forecast-info"><strong>08:40 盤前預測</strong><p>須納入夜盤及國際市場資訊；未有正式預測時不顯示方向。</p><span class="muted">此圖示不是收盤結果。</span></div></details><svg class="trend" id="close-chart" viewBox="0 0 600 170" preserveAspectRatio="none" role="img" aria-label="最近交易日收盤走勢圖"><text x="18" y="85" fill="#718096">收盤歷史資料尚未載入</text></svg></div><div class="details" id="beginner-summary" aria-live="polite"><b>一句話看懂今天台股</b><p class="small">正在讀取已發布的收盤資料…</p></div><div class="metrics home-key-metrics"><div class="metric"><span class="muted small">最近交易日</span><strong id="latest-date">—</strong></div><div class="metric" id="trade-value-box"><span class="muted small">上市成交值</span><strong id="trade-value">資料同步中</strong></div></div><div class="details quarter-compact" id="quarter-metrics">Q4（10/1 起）歷史統計讀取中…</div></article>
+<section id="home"><div class="grid"><div><article class="card"><div class="cardhead"><h2>台灣加權指數</h2><span class="pill" id="index-source">等待資料</span></div><div class="index-forecast-row"><div class="index-quote"><div class="index" id="index-value">—</div><div id="index-change" class="muted"><b>等待收盤資料</b></div></div></div><div class="chart-shell"><details class="forecast-chip" id="forecast-chip"><summary aria-label="查看下一交易日預測詳情"><span class="forecast-card-head"><span class="forecast-card-title" id="forecast-day">隔日預測</span><span class="forecast-card-state" id="forecast-state">待研判</span></span><span class="forecast-card-main"><span class="wxicon" id="forecast-icon">☁️</span><span class="forecast-card-direction" id="forecast-label">待研判</span></span><span class="forecast-prob" id="forecast-prob">預估機率：待模型驗證</span><span class="forecast-card-update" id="forecast-updated">評估依據：等待資料</span></summary><div class="forecast-info" id="forecast-info"><p>等待台股收盤與國際行情資料。</p></div></details><svg class="trend" id="close-chart" viewBox="0 0 600 170" preserveAspectRatio="none" role="img" aria-label="最近交易日收盤走勢圖"><text x="18" y="85" fill="#718096">收盤歷史資料尚未載入</text></svg></div><div class="details" id="beginner-summary" aria-live="polite"><b>一句話看懂今天台股</b><p class="small">正在讀取已發布的收盤資料…</p></div><div class="metrics home-key-metrics"><div class="metric"><span class="muted small">最近交易日</span><strong id="latest-date">—</strong></div><div class="metric" id="trade-value-box"><span class="muted small">上市成交值</span><strong id="trade-value">資料同步中</strong></div></div><div class="details quarter-compact" id="quarter-metrics">Q4（10/1 起）歷史統計讀取中…</div></article>
 <article class="card"><div class="cardhead"><h2>今日台股怎麼看？</h2><span class="pill" id="ai-state">等待分析資料</span></div><div class="weather"><div class="emoji" id="analysis-icon">☁️</div><div><strong id="analysis-head">等待歷史行情</strong><div class="small muted" id="analysis-sub">依實際收盤與歷史數據計算，不冒充盤前預測。</div></div></div><div class="details" id="analysis-details">正在計算 Q4 走勢…</div><div class="details" id="weekly-forecast" aria-live="polite">正在建立未來五個交易日趨勢…</div></article>
 <article class="card hide"><div class="cardhead"><h2>市場速報</h2><span class="pill">有資料才顯示</span></div><div class="weather" style="margin-bottom:12px"><div class="emoji" id="report-emoji">☁️</div><div><div class="small muted" id="report-label">08:40｜盤前</div><strong id="report-title">尚無正式速報</strong><div class="small muted" id="report-desc">等待報告資料</div></div></div><div class="four timeline" id="timeline"></div><div class="details" id="report-detail" aria-live="polite"></div></article></div>
 <div><article class="card"><div class="cardhead"><h2>國際市場｜對台股有什麼影響？</h2><span class="pill">最近可用報價</span></div><div class="details" style="margin:12px 0"><b>臺指期夜盤｜TX 盤後交易</b><div id="night-status" class="small muted" style="margin-top:8px">正在檢查夜盤資料…</div><div id="night-numbers" class="metrics" style="margin-top:10px;display:none"><div class="metric"><span class="small muted">近月契約／最後成交價</span><strong id="night-last">—</strong></div><div class="metric"><span class="small muted">漲跌點數／幅度</span><strong id="night-change">—</strong></div></div><p class="small muted" id="night-note">交易時段 15:00 至次日 05:00；官方盤後統計通常於次日上午發布，非盤中即時行情。期貨與現貨指數不同。</p><a href="https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=1" target="_blank" rel="noopener noreferrer">查看期交所官方夜盤行情 ↗</a></div><div class="global-status"><div><strong id="global-head">等待國際市場資料</strong><div class="small muted" id="global-sub">報價時間與來源將隨數據顯示，不將延遲報價稱為即時。</div></div></div><div class="details small" style="margin-top:12px"><b>新手怎麼看？</b> 美國科技股、半導體和台積電 ADR 的表現，可以幫助觀察台股隔日氣氛，但不能保證台股一定跟著漲跌。下方只顯示有來源的實際行情。</div><div id="markets" style="margin-top:12px"></div><p class="small muted">數據依交易所時間顯示；並非逐筆即時行情。</p></article><article class="card"><div class="cardhead"><h2>個股健檢</h2><button class="link" data-goto="stock">前往 ›</button></div><p class="small muted">想研究 00929 或其他股票？可從這裡進入。</p><button class="action primary" data-goto="stock">前往個股健檢</button></article><article class="card"><div class="cardhead"><h2>個人投資管理</h2><span class="pill">🔒 私人專區</span></div><p class="small muted">私人持股資料區尚未開放；配息目標可先使用本機試算。</p><button class="action" data-goto="goal">前往配息目標</button></article></div></div></section>
@@ -174,7 +144,7 @@ const timeline=document.getElementById('timeline');reports.forEach((r,i)=>{const
 function showReport(i){const r=reports[i];document.querySelectorAll('#timeline button').forEach((b,j)=>b.classList.toggle('active',i===j));document.getElementById('report-emoji').textContent='☁️';document.getElementById('report-label').textContent=r.time+'｜'+r.name;document.getElementById('report-title').textContent='尚無正式速報';document.getElementById('report-desc').textContent='自動報告尚未串接網站';document.getElementById('report-detail').textContent='ChatGPT 定時通知與本網站尚未建立資料同步；此處不顯示示意預測。';if(i===3&&window.closingSummary){document.getElementById('report-title').textContent=window.closingSummary.title;document.getElementById('report-desc').textContent='收盤數據摘要（非 AI 分析）';document.getElementById('report-detail').textContent=window.closingSummary.description+'｜正式 16:00 AI 報告尚未串接。';}}showReport(3);
 const marketNames=[['NASDAQ','美國科技股｜科技股氣氛'],['費城半導體','半導體產業｜電子股參考'],['NVIDIA','AI 龍頭｜AI 供應鏈'],['台積電 ADR','台積電美國掛牌股票｜海外評價'],['日經 225','日本股市｜亞洲市場氣氛']];document.getElementById('markets').innerHTML=marketNames.map(m=>`<div class="market"><div><b>${m[0]}</b><small>${m[1]}</small></div><b class="muted">待串接</b></div>`).join('');
 function renderBeginnerSummary(last,prev){const el=document.getElementById('beginner-summary');if(!el)return;el.replaceChildren();const title=document.createElement('b');title.textContent='一句話看懂今天台股';const p=document.createElement('p');p.className='small';if(!last||!prev){p.textContent='有效收盤資料不足，暫時無法判斷今天漲跌。';}else{const diff=last.close-prev.close;const pct=prev.close?Math.abs(diff/prev.close*100):0;const dir=diff>0?'上漲':diff<0?'下跌':'持平';p.textContent=`${last.date} 台股收盤${dir} ${Math.abs(diff).toLocaleString('zh-TW',{maximumFractionDigits:2})} 點（${pct.toFixed(2)}%）。${diff>0?'今天比前一交易日收得更高，但不代表明天一定上漲。':diff<0?'今天比前一交易日收得更低，但不代表明天一定下跌。':'今天與前一交易日收盤相同。'}`;}el.append(title,p);}
-function drawCloses(rows){const svg=document.getElementById('close-chart');if(rows.length<2)return;const values=rows.map(r=>r.close);let lo=Math.min(...values),hi=Math.max(...values);if(hi===lo){hi++;lo--}const x=i=>24+i*(552/(rows.length-1));const y=v=>146-(v-lo)/(hi-lo)*120;const path=rows.map((r,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(r.close).toFixed(1)}`).join(' ');const color=rows.length>1&&values.at(-1)>=values.at(-2)?'#c53939':'#15803d';const ns='http://www.w3.org/2000/svg';svg.replaceChildren();const line=document.createElementNS(ns,'path');line.setAttribute('d',path);line.setAttribute('fill','none');line.setAttribute('stroke',color);line.setAttribute('stroke-width','3.5');line.setAttribute('stroke-linecap','round');svg.append(line);for(const [pos,label] of [[0,rows[0].date],[rows.length-1,rows.at(-1).date]]){const t=document.createElementNS(ns,'text');t.setAttribute('x',String(Math.max(5,Math.min(510,x(pos)-20))));t.setAttribute('y','164');t.setAttribute('fill','#718096');t.setAttribute('font-size','12');t.textContent=label.slice(5);svg.append(t)}}
+function drawCloses(rows){const svg=document.getElementById('close-chart');if(rows.length<2)return;const values=rows.map(r=>r.close);let lo=Math.min(...values),hi=Math.max(...values);if(hi===lo){hi++;lo--}const x=i=>12+i*(576/(rows.length-1));const y=v=>146-(v-lo)/(hi-lo)*120;const path=rows.map((r,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(r.close).toFixed(1)}`).join(' ');const color=rows.length>1&&values.at(-1)>=values.at(-2)?'#c53939':'#15803d';const ns='http://www.w3.org/2000/svg';svg.replaceChildren();const line=document.createElementNS(ns,'path');line.setAttribute('d',path);line.setAttribute('fill','none');line.setAttribute('stroke',color);line.setAttribute('stroke-width','3.5');line.setAttribute('stroke-linecap','round');svg.append(line);for(const [pos,label] of [[0,rows[0].date],[rows.length-1,rows.at(-1).date]]){const t=document.createElementNS(ns,'text');t.setAttribute('x',String(x(pos)));t.setAttribute('text-anchor',pos===0?'start':'end');t.setAttribute('y','164');t.setAttribute('fill','#718096');t.setAttribute('font-size','12');t.textContent=label.slice(5);svg.append(t)}}
 let forecastDate='';
 const forecastSymbols={'強勢看漲':'☀️','偏多':'🌤️','不明':'☁️','偏空':'🌧️','強勢看跌':'⛈️'};
 async function loadForecast(tradingDate){
@@ -431,8 +401,17 @@ async function renderNextForecast(rows){
  const label=document.getElementById('forecast-label'),icon=document.getElementById('forecast-icon'),info=document.getElementById('forecast-info');
  const day=nextSessionDates(rows.at(-1).date,1)[0];const f=buildOutlook(rows,lastGlobalQuotes);
  const dayEl=document.getElementById('forecast-day'),stateEl=document.getElementById('forecast-state'),updatedEl=document.getElementById('forecast-updated');
- dayEl.textContent=day.slice(5)+' 動態預測';stateEl.textContent='尚未鎖定';
- updatedEl.textContent='評估依據：台股收盤與已發布國際資料（非即時）';
+ const probability=document.getElementById('forecast-prob');
+ const dayLabel=day.slice(5).replace('-','/');
+ const updateProbability=direction=>{
+  const event=direction.includes('空')||direction.includes('跌')?'下跌':direction.includes('多')||direction.includes('漲')?'上漲':'';
+  probability.textContent='預估'+event+'機率：待模型驗證';
+ };
+ dayEl.textContent=dayLabel+' 動態預測';
+ const insufficient=f.direction==='資料不足';
+ stateEl.textContent=insufficient?'待研判':'尚未鎖定';
+ updateProbability(f.direction);
+ updatedEl.textContent=insufficient?'評估依據：可用行情不足':'評估依據：台股收盤及已發布國際行情';
  label.textContent=f.direction==='資料不足'?'待研判':f.direction+'（初判）';icon.textContent=outlookWeather(f.direction);info.replaceChildren();
  const add=t=>{const p=document.createElement('p');p.textContent=t;info.append(p)};
  add('預測交易日：'+day+'（休市須依證交所行事曆確認）');
@@ -444,7 +423,7 @@ async function renderNextForecast(rows){
  const j=r,entries=Array.isArray(j)?j:j.rows;
  const p=Array.isArray(entries)&&entries.find(x=>x&&x.date===day&&x.time==='08:40'&&Object.prototype.hasOwnProperty.call(forecastSymbols,x.weather)&&typeof x.reason==='string'&&x.reason.trim());
  if(!p||render!==forecastRender)return;
- label.textContent=p.weather;icon.textContent=forecastSymbols[p.weather];dayEl.textContent=day.slice(5)+' 正式預測';stateEl.textContent='已記錄';updatedEl.textContent='正式紀錄：08:40（非即時）';info.replaceChildren();
+ label.textContent=p.weather;icon.textContent=forecastSymbols[p.weather];dayEl.textContent=dayLabel+' 正式預測';stateEl.textContent='已記錄';updatedEl.textContent='正式紀錄：08:40（台灣時間）';updateProbability(p.weather);info.replaceChildren();
  add('正式08:40預測：'+day);add('方向：'+p.weather);add('依據：'+p.reason);if(p.risk)add('風險：'+p.risk);
  }catch(e){/* Keep the on-page outlook when no archived forecast can be read. */}
 }
