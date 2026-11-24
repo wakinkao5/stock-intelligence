@@ -51,8 +51,9 @@ def main():
     previous = {r["date"]: r for r in old.get("rows", []) if isinstance(r, dict) and r.get("date")}
     end = NOW.date() if NOW.hour >= 16 else NOW.date() - timedelta(days=1)
     months = sorted({f"{year:04d}-{month:02d}" for year in range(2026, end.year + 1)
-                     for month in range(1, 13) if date(year, month, 1) <= end and (year, month) >= (2026, 9)})
+                     for month in range(1, 13) if date(year, month, 1) <= end and (year, month) >= (2026, 1)})
     official = {}
+    failed_months = []
     for month in months:
         try:
             rows = fetch_month(month)
@@ -60,18 +61,18 @@ def main():
             print("Verified", month, len(rows))
         except RuntimeError as exc:
             print("WARNING:", exc)
+            failed_months.append(month)
         time.sleep(0.3)
+    if failed_months:
+        raise RuntimeError("Incomplete official history; refusing to publish partial/mixed data: " + ", ".join(failed_months))
     if not official:
         raise RuntimeError("TWSE official data unavailable; no file overwritten")
-    # Keep previously published verified values when a month is temporarily unavailable.
-    for key, row in previous.items():
-        if key not in official and isinstance(row.get("trade_value"), (int, float)) and row["trade_value"] > 0:
-            official[key] = row
+    # Do not preserve unverified historical figures. A failed month remains explicitly missing.
     latest = max(official)
     if latest < end.isoformat():
         print("WARNING latest verified trading date:", latest, "eligible:", end)
     result = {"source": "TWSE official FMTQIK daily market statistics", "updated_at": NOW.isoformat(timespec="seconds"),
-              "quarter_start": "2026-10-01", "rows": sorted(official.values(), key=lambda x: x["date"])[-180:]}
+              "history_start": "2026-01-01", "verified": True, "quarter_start": "2026-10-01", "rows": sorted(official.values(), key=lambda x: x["date"])}
     TARGET.parent.mkdir(parents=True, exist_ok=True)
     TARGET.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("Saved", len(result["rows"]), "official rows; latest", latest, "turnover", official[latest]["trade_value"])
