@@ -47,8 +47,6 @@ def fetch_month(month):
     raise RuntimeError(month + ": " + " | ".join(errors))
 
 def main():
-    old = json.loads(TARGET.read_text(encoding="utf-8")) if TARGET.exists() else {}
-    previous = {r["date"]: r for r in old.get("rows", []) if isinstance(r, dict) and r.get("date")}
     end = NOW.date() if NOW.hour >= 16 else NOW.date() - timedelta(days=1)
     months = sorted({f"{year:04d}-{month:02d}" for year in range(2026, end.year + 1)
                      for month in range(1, 13) if date(year, month, 1) <= end and (year, month) >= (2026, 1)})
@@ -68,6 +66,8 @@ def main():
     if not official:
         raise RuntimeError("TWSE official data unavailable; no file overwritten")
     # Do not preserve unverified historical figures. A failed month remains explicitly missing.
+    if min(official) > "2026-01-31":
+        raise RuntimeError("January official data missing; refusing incomplete backfill")
     latest = max(official)
     if latest < end.isoformat():
         print("WARNING latest verified trading date:", latest, "eligible:", end)
