@@ -2,9 +2,11 @@
 """Fetch verified delayed daily international closes; never synthesize quotes."""
 import datetime as dt
 import json
+import math
 import pathlib
 import urllib.parse
 import urllib.request
+from zoneinfo import ZoneInfo
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 OUT = ROOT / "data" / "global.json"
@@ -24,14 +26,34 @@ def fetch(name, symbol):
     result = payload["chart"]["result"][0]
     stamps = result["timestamp"]
     closes = result["indicators"]["quote"][0]["close"]
-    tz = dt.timezone(dt.timedelta(seconds=result["meta"].get("gmtoffset", 0)))
-    points = [(dt.datetime.fromtimestamp(ts, tz).date().isoformat(), float(value)) for ts, value in zip(stamps, closes) if isinstance(value, (int, float)) and value > 0]
-    if len(points) < 2:
-        raise ValueError("Not enough verified closes")
-    latest, previous = points[-1], points[-2]
-    if latest[0] > dt.datetime.now(tz).date().isoformat():
-        raise ValueError("Future-dated quote")
-    return {"name": name, "symbol": symbol, "date": latest[0], "close": round(latest[1], 4), "change_pct": round((latest[1] / previous[1] - 1) * 100, 2), "source": "Yahoo Finance 延遲日線"}
+    meta = result["meta"]
+    if meta["symbol"] != symbol:
+        raise ValueError("Unexpected quote symbol")
+    tz = ZoneInfo(meta["exchangeTimezoneName"])
+    now = dt.datetime.now(tz)
+    regular = meta["currentTradingPeriod"]["regular"]
+    current_session = dt.datetime.fromtimestamp(regular["start"], tz).date()
+    session_end = dt.datetime.fromtimestamp(regular["end"], tz)
+    points = {}
+    for stamp, value in zip(stamps, closes, strict=True):
+        day = dt.datetime.fromtimestamp(stamp, tz).date()
+        if day > now.date():
+            raise ValueError("Future-dated quote")
+        if not isinstance(value, (int, float)) or not math.isfinite(value) or value <= 0:
+            continue
+        if day >= current_session and (day != current_session or now < session_end):
+            continue
+        if day == now.date() and day != current_session:
+            continue
+        points[day] = value
+    days = sorted(points)
+    if len(days) < 2:
+        raise ValueError("Not enough completed sessions")
+    day, prior_day = days[-2:][::-1]
+    latest, previous = points[day], points[prior_day]
+    return {"name": name, "symbol": symbol, "date": day.isoformat(), "close": round(latest, 4),
+            "change_pct": round((latest / previous - 1) * 100, 2),
+            "session_complete": True, "source": "Yahoo Finance 延遲日線"}
 
 def main():
     previous = {}
@@ -41,21 +63,31 @@ def main():
         except (ValueError, KeyError, TypeError):
             pass
     rows = []
+    confirmed = 0
     for name, symbol in SYMBOLS:
         try:
             item = fetch(name, symbol)
+            old = previous.get(name, {})
+            if old.get("date", "") > item["date"]:
+                raise ValueError("Provider response is older than the last completed session")
             rows.append(item)
+            confirmed += 1
             print(f"OK {name}: {item['date']} {item['close']}")
         except Exception as error:
             print(f"UNAVAILABLE {name}: {error}")
             if name in previous:
-                rows.append(previous[name])
+                rows.append({**previous[name], "stale": True})
+    if rows == list(previous.values()):
+        if not confirmed:
+            raise RuntimeError("No completed quotes verified")
+        print("No new international closes")
+        return
     if not rows:
-        raise RuntimeError("No confirmed quotes; leaving existing file unchanged")
+        raise RuntimeError("No completed quotes verified")
     payload = {"updated_at": dt.datetime.now(dt.timezone(dt.timedelta(hours=8))).isoformat(timespec="seconds"), "note": "Delayed daily close; individual quote dates shown. Unavailable symbols retain prior verified date.", "rows": rows}
     OUT.parent.mkdir(parents=True, exist_ok=True)
     OUT.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(f"Saved {len(rows)}/5 verified entries")
+    print(f"Saved {confirmed}/{len(SYMBOLS)} refreshed quotes; {len(rows) - confirmed} retained")
 
 if __name__ == "__main__":
     main()

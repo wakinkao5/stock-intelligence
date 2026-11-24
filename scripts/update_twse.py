@@ -1,5 +1,6 @@
 """Update TAIEX and turnover from official TWSE daily market statistics."""
 import json
+import math
 import time
 import urllib.request
 from datetime import date, datetime, timedelta
@@ -32,10 +33,12 @@ def fetch_month(month):
                     year, mm, dd = [int(x) for x in str(item[di]).strip().replace("-", "/").split("/")]
                     if year < 1911:
                         year += 1911
-                    day = f"{year:04d}-{mm:02d}-{dd:02d}"
+                    day = date(year, mm, dd).isoformat()
+                    if day[:7] != month:
+                        continue
                     close = float(str(item[ci]).replace(",", ""))
                     value = int(str(item[vi]).replace(",", ""))
-                    if close > 0 and value > 0:
+                    if math.isfinite(close) and close > 0 and value > 0:
                         rows.append({"date": day, "close": close, "trade_value": value})
                 except (ValueError, TypeError, IndexError):
                     continue
@@ -73,6 +76,15 @@ def main():
         print("WARNING latest verified trading date:", latest, "eligible:", end)
     result = {"source": "TWSE official FMTQIK daily market statistics", "updated_at": NOW.isoformat(timespec="seconds"),
               "history_start": "2026-01-01", "verified": True, "quarter_start": "2026-10-01", "rows": sorted(official.values(), key=lambda x: x["date"])}
+    if TARGET.exists():
+        previous = json.loads(TARGET.read_text(encoding="utf-8"))
+        if previous.get("verified"):
+            old_rows = previous.get("rows", [])
+            if {row["date"] for row in old_rows} - official.keys():
+                raise RuntimeError("Official response omitted existing trading dates")
+            if old_rows == result["rows"]:
+                print("No new TWSE close")
+                return
     TARGET.parent.mkdir(parents=True, exist_ok=True)
     TARGET.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("Saved", len(result["rows"]), "official rows; latest", latest, "turnover", official[latest]["trade_value"])
