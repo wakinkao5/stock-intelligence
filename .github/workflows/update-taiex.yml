@@ -1,6 +1,9 @@
 name: 每日更新證交所台股收盤資料
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/update_twse.py'
   schedule:
     - cron: '45 8 * * 1-5' # 16:45 Asia/Taipei
 permissions:
