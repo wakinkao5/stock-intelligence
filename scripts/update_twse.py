@@ -37,37 +37,61 @@ def fetch_day(day, token):
 
 
 def enrich_twse_turnover(previous, end):
-    """Use TWSE official FMTQIK monthly daily turnover; never infer missing values."""
+    """Backfill actual TWSE daily traded value (TWD); never fabricate turnover."""
     months = sorted({key[:7] for key in previous if key <= end.isoformat()})
-    filled = 0
+    total_filled = 0
     for month in months:
-        url = 'https://www.twse.com.tw/exchangeReport/FMTQIK?response=json&date=' + month.replace('-', '') + '01'
-        try:
-            req = urllib.request.Request(url, headers={'User-Agent':'Mozilla/5.0', 'Accept':'application/json'})
-            with urllib.request.urlopen(req, timeout=25) as response:
-                payload = json.load(response)
-            fields = payload.get('fields', [])
-            amount_idx = next((i for i, field in enumerate(fields) if '成交金額' in field), None)
-            date_idx = next((i for i, field in enumerate(fields) if '日期' in field), None)
-            if amount_idx is None or date_idx is None:
-                print('TWSE turnover unavailable:', month, fields)
-                continue
-            for record in payload.get('data', []):
-                raw_date = str(record[date_idx]).strip()
-                try:
-                    year, mm, dd = [int(x) for x in raw_date.split('/')]
-                    key = f'{year+1911:04d}-{mm:02d}-{dd:02d}'
-                    amount = int(str(record[amount_idx]).replace(',', '').strip())
-                except (ValueError, TypeError, IndexError):
-                    continue
-                if key in previous and amount > 0:
-                    previous[key]['trade_value'] = amount
-                    filled += 1
-            print('TWSE verified turnover rows:', month, filled)
-        except (urllib.error.URLError, ValueError, TimeoutError, OSError) as exc:
-            print('TWSE turnover fetch failed:', month, str(exc)[:160])
+        month_date = month.replace('-', '') + '01'
+        urls = [
+            'https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?response=json&date=' + month_date,
+            'https://www.twse.com.tw/exchangeReport/FMTQIK?response=json&date=' + month_date,
+        ]
+        month_filled = 0
+        failures = []
+        for url in urls:
+            try:
+                req = urllib.request.Request(url, headers={
+                    'User-Agent': 'Mozilla/5.0 (compatible; StockIntelligence/3.6)',
+                    'Accept': 'application/json',
+                    'Referer': 'https://www.twse.com.tw/',
+                })
+                with urllib.request.urlopen(req, timeout=30) as response:
+                    payload = json.load(response)
+                if not isinstance(payload, dict) or not isinstance(payload.get('data'), list):
+                    raise ValueError('Missing TWSE data array: ' + str(payload.get('stat', 'unknown')))
+                fields = [str(x).replace(' ', '') for x in payload.get('fields', [])]
+                date_idx = next((i for i, field in enumerate(fields) if '日期' in field or 'Date' in field), None)
+                amount_idx = next((i for i, field in enumerate(fields) if '成交金額' in field or 'TradeValue' in field), None)
+                if date_idx is None or amount_idx is None:
+                    raise ValueError('Unrecognized TWSE columns: ' + str(fields))
+                for record in payload['data']:
+                    try:
+                        raw = str(record[date_idx]).strip().replace('-', '/')
+                        year, mm, dd = [int(x) for x in raw.split('/')]
+                        if year < 1911:
+                            year += 1911
+                        key = f'{year:04d}-{mm:02d}-{dd:02d}'
+                        amount = int(str(record[amount_idx]).replace(',', '').strip())
+                    except (ValueError, TypeError, IndexError):
+                        continue
+                    if key in previous and amount > 0:
+                        previous[key]['trade_value'] = amount
+                        month_filled += 1
+                if month_filled:
+                    print('TWSE official turnover:', month, month_filled, 'rows from', url)
+                    break
+                failures.append('No matching dated turnover rows')
+            except (urllib.error.URLError, ValueError, TimeoutError, OSError) as exc:
+                failures.append(str(exc)[:180])
+        total_filled += month_filled
+        if not month_filled:
+            print('WARNING TWSE turnover unavailable:', month, ' | '.join(failures))
         time.sleep(0.3)
-    print('TWSE turnover populated:', filled)
+    print('TWSE turnover verified:', total_filled, 'rows')
+    latest = max(previous)
+    if previous[latest].get('trade_value') is None:
+        print('WARNING: latest trading day has no verified official turnover:', latest)
+    return total_filled
 
 def main():
     token=os.getenv('FINMIND_TOKEN','').strip()
@@ -96,7 +120,9 @@ def main():
         day+=timedelta(days=1)
     if errors:raise RuntimeError('Backfill incomplete, refusing partial commit: '+'; '.join(errors[:8]))
     if not previous:raise RuntimeError('No verified rows')
-    enrich_twse_turnover(previous, end)
+    enriched = enrich_twse_turnover(previous, end)
+    if not enriched and not any(row.get('trade_value') is not None for row in previous.values()):
+        raise RuntimeError('TWSE official turnover unavailable from both endpoints; refusing to publish an apparently refreshed but incomplete dataset')
     latest=max(previous)
     print(f'Latest verified close in dataset: {latest}')
     if latest < end.isoformat():
