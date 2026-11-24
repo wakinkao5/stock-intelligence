@@ -43,6 +43,8 @@ def main():
         old=json.loads(TARGET.read_text(encoding='utf-8'))
         previous={r['date']:r for r in old.get('rows',[]) if isinstance(r,dict) and r.get('date') and isinstance(r.get('close'),(int,float))}
     end=NOW.date() if NOW.hour>=14 else NOW.date()-timedelta(days=1)
+    print(f'Execution time (Asia/Taipei): {NOW.isoformat(timespec="seconds")}')
+    print(f'Latest date eligible for 13:30 close: {end.isoformat()}')
     # 2026-09-30 provides a baseline for Q4 return; Q4 reporting starts 10/01.
     start=date(2026,9,30)
     day=start; added=0; errors=[]
@@ -60,6 +62,12 @@ def main():
         day+=timedelta(days=1)
     if errors:raise RuntimeError('Backfill incomplete, refusing partial commit: '+'; '.join(errors[:8]))
     if not previous:raise RuntimeError('No verified rows')
+    latest=max(previous)
+    print(f'Latest verified close in dataset: {latest}')
+    if latest < end.isoformat():
+        print(f'WARNING: latest verified close ({latest}) is older than eligible date ({end}); possible holiday, provider delay, or missing close.')
+    else:
+        print('Market data freshness: latest eligible date is present.')
     result={'source':'FinMind TaiwanVariousIndicators5Seconds (13:30 TAIEX)', 'updated_at':NOW.isoformat(timespec='seconds'),'quarter_start':'2026-10-01','rows':sorted(previous.values(),key=lambda r:r['date'])[-130:]}
     TARGET.parent.mkdir(parents=True,exist_ok=True)
     TARGET.write_text(json.dumps(result,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
