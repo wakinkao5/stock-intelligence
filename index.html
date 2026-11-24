@@ -376,14 +376,12 @@ async function renderNextForecast(rows){
  const dayEl=document.getElementById('forecast-day'),stateEl=document.getElementById('forecast-state'),updatedEl=document.getElementById('forecast-updated');
  const probability=document.getElementById('forecast-prob');
  const dayLabel=day.slice(5).replace('-','/');
- const updateProbability=direction=>{
-  const event=direction.includes('空')||direction.includes('跌')?'下跌':direction.includes('多')||direction.includes('漲')?'上漲':'';
-  probability.textContent='預估'+event+'機率：待模型驗證';
- };
  dayEl.textContent=dayLabel+' 動態預測';
  const insufficient=f.direction==='資料不足';
  stateEl.textContent=insufficient?'待研判':'尚未鎖定';
- updateProbability(f.direction);
+ // Convert the bounded direction score to a conservative, uncalibrated estimate.
+ const upEstimate=f.score===null?null:Math.round(50+25*f.score);
+ probability.textContent=upEstimate===null?'初估上漲機率：資料不足':`初估上漲機率：${upEstimate}%（未校準）`;
  updatedEl.textContent=insufficient?'評估依據：可用行情不足':'評估依據：台股收盤及已發布國際行情';
  label.textContent=f.direction==='資料不足'?'待研判':f.direction+'（初判）';icon.textContent=outlookWeather(f.direction);info.replaceChildren();
  const add=t=>{const p=document.createElement('p');p.textContent=t;info.append(p)};
@@ -391,12 +389,13 @@ async function renderNextForecast(rows){
  add('收盤後初步研判：'+f.direction+'；非正式08:40預測。');
  add('國際訊號：'+f.usable.length+'/5 項可用；上漲 '+f.positive+'、下跌 '+f.negative+'。');
  add('台股近5日 '+(f.r5===null?'資料不足':fmtPct(f.r5))+'；近10日 '+(f.r10===null?'資料不足':fmtPct(f.r10))+'。');
+ if(upEstimate!==null)add('百分比為方向分數換算：50% 加上方向分數 × 25 個百分點。上漲指下一交易日收盤高於前一交易日收盤。');
  add('本模型未採用夜盤日報。');
  try{const r=await fetchJson('./data/predictions.json');
  const j=r,entries=Array.isArray(j)?j:j.rows;
  const p=Array.isArray(entries)&&entries.find(x=>x&&x.date===day&&x.time==='08:40'&&Object.prototype.hasOwnProperty.call(forecastSymbols,x.weather)&&typeof x.reason==='string'&&x.reason.trim());
  if(!p||render!==forecastRender)return;
- label.textContent=p.weather;icon.textContent=forecastSymbols[p.weather];dayEl.textContent=dayLabel+' 正式預測';stateEl.textContent='已記錄';updatedEl.textContent='正式紀錄：08:40（台灣時間）';updateProbability(p.weather);info.replaceChildren();
+ label.textContent=p.weather;icon.textContent=forecastSymbols[p.weather];dayEl.textContent=dayLabel+' 正式預測';stateEl.textContent='已記錄';updatedEl.textContent='正式紀錄：08:40（台灣時間）';probability.textContent='正式紀錄未提供機率';info.replaceChildren();
  add('正式08:40預測：'+day);add('方向：'+p.weather);add('依據：'+p.reason);if(p.risk)add('風險：'+p.risk);
  }catch(e){/* Keep the on-page outlook when no archived forecast can be read. */}
 }
