@@ -1,0 +1,12 @@
+{
+  "symbol": "TX",
+  "contract": "202612",
+  "trade_date": "2026-11-23",
+  "last": 39829.0,
+  "change": 3170.0,
+  "change_pct": 8.65,
+  "source": "TAIFEX",
+  "quote_type": "official_after_hours_daily_report",
+  "source_url": "https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=1",
+  "updated_at": "2026-11-24T22:47:50.430901+08:00"
+}
