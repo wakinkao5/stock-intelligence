@@ -35,6 +35,40 @@ def fetch_day(day, token):
     return {'date':day,'close':close,'trade_value':None}
 
 
+
+def enrich_twse_turnover(previous, end):
+    """Use TWSE official FMTQIK monthly daily turnover; never infer missing values."""
+    months = sorted({key[:7] for key in previous if key <= end.isoformat()})
+    filled = 0
+    for month in months:
+        url = 'https://www.twse.com.tw/exchangeReport/FMTQIK?response=json&date=' + month.replace('-', '') + '01'
+        try:
+            req = urllib.request.Request(url, headers={'User-Agent':'Mozilla/5.0', 'Accept':'application/json'})
+            with urllib.request.urlopen(req, timeout=25) as response:
+                payload = json.load(response)
+            fields = payload.get('fields', [])
+            amount_idx = next((i for i, field in enumerate(fields) if '成交金額' in field), None)
+            date_idx = next((i for i, field in enumerate(fields) if '日期' in field), None)
+            if amount_idx is None or date_idx is None:
+                print('TWSE turnover unavailable:', month, fields)
+                continue
+            for record in payload.get('data', []):
+                raw_date = str(record[date_idx]).strip()
+                try:
+                    year, mm, dd = [int(x) for x in raw_date.split('/')]
+                    key = f'{year+1911:04d}-{mm:02d}-{dd:02d}'
+                    amount = int(str(record[amount_idx]).replace(',', '').strip())
+                except (ValueError, TypeError, IndexError):
+                    continue
+                if key in previous and amount > 0:
+                    previous[key]['trade_value'] = amount
+                    filled += 1
+            print('TWSE verified turnover rows:', month, filled)
+        except (urllib.error.URLError, ValueError, TimeoutError, OSError) as exc:
+            print('TWSE turnover fetch failed:', month, str(exc)[:160])
+        time.sleep(0.3)
+    print('TWSE turnover populated:', filled)
+
 def main():
     token=os.getenv('FINMIND_TOKEN','').strip()
     if not token:raise RuntimeError('FINMIND_TOKEN missing')
@@ -62,6 +96,7 @@ def main():
         day+=timedelta(days=1)
     if errors:raise RuntimeError('Backfill incomplete, refusing partial commit: '+'; '.join(errors[:8]))
     if not previous:raise RuntimeError('No verified rows')
+    enrich_twse_turnover(previous, end)
     latest=max(previous)
     print(f'Latest verified close in dataset: {latest}')
     if latest < end.isoformat():
