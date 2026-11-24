@@ -1,0 +1,46 @@
+{
+  "updated_at": "2026-11-24T21:13:40+08:00",
+  "note": "Delayed daily close; individual quote dates shown. Unavailable symbols retain prior verified date.",
+  "rows": [
+    {
+      "name": "NASDAQ",
+      "symbol": "^IXIC",
+      "date": "2026-11-23",
+      "close": 24089.5605,
+      "change_pct": 6.51,
+      "source": "Yahoo Finance 延遲日線"
+    },
+    {
+      "name": "費城半導體",
+      "symbol": "^SOX",
+      "date": "2026-11-23",
+      "close": 9588.0498,
+      "change_pct": 14.03,
+      "source": "Yahoo Finance 延遲日線"
+    },
+    {
+      "name": "NVIDIA",
+      "symbol": "NVDA",
+      "date": "2026-11-23",
+      "close": 165.05,
+      "change_pct": 31.48,
+      "source": "Yahoo Finance 延遲日線"
+    },
+    {
+      "name": "台積電 ADR",
+      "symbol": "TSM",
+      "date": "2026-11-23",
+      "close": 363.6,
+      "change_pct": 14.08,
+      "source": "Yahoo Finance 延遲日線"
+    },
+    {
+      "name": "日經 225",
+      "symbol": "^N225",
+      "date": "2026-11-24",
+      "close": 58644.6289,
+      "change_pct": 3.91,
+      "source": "Yahoo Finance 延遲日線"
+    }
+  ]
+}
