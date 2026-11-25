@@ -62,6 +62,21 @@ def is_session(day):
                    not any(word in row["Name"] for word in ("開始交易", "最後交易")) for row in rows)
 
 
+# Exchange holidays for the supported calendar years.
+US_CLOSED = {
+    2026: {"01-01", "01-19", "02-16", "04-03", "05-25", "06-19", "07-03", "09-07", "11-26", "12-25"},
+    2027: {"01-01", "01-18", "02-15", "03-26", "05-31", "06-18", "07-05", "09-06", "11-25", "12-24"},
+    2028: {"01-17", "02-21", "04-14", "05-29", "06-19", "07-04", "09-04", "11-23", "12-25"},
+}
+
+
+def previous_us_session(day):
+    previous = day - timedelta(days=1)
+    while previous.weekday() >= 5 or previous.isoformat()[5:] in US_CLOSED.get(previous.year, set()):
+        previous -= timedelta(days=1)
+    return previous.isoformat()
+
+
 def forecast_inputs(day):
     history = read("taiex.json")
     closes = [r for r in history["rows"] if r["date"] < day.isoformat()]
@@ -76,10 +91,9 @@ def forecast_inputs(day):
     quotes = {r["symbol"]: r for r in global_data["rows"]
               if r.get("session_complete") and not r.get("stale") and math.isfinite(r["change_pct"])}
     us = [quotes[symbol] for symbol in US if symbol in quotes]
-    if len(us) != len(US) or len({r["date"] for r in us}) != 1 or not (
-        (day - timedelta(days=4)).isoformat() <= us[0]["date"] < day.isoformat()
-    ):
-        raise RuntimeError("Recent matching completed US sessions unavailable")
+    expected_us = previous_us_session(day)
+    if len(us) != len(US) or any(quote["date"] != expected_us for quote in us):
+        raise RuntimeError(f"Required completed US session {expected_us} unavailable for all four inputs")
     night = read("night-futures.json")
     night_is_current = (night.get("verified") is True and night.get("trade_date") == day.isoformat()
                         and math.isfinite(night["change_pct"]))

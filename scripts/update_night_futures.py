@@ -87,9 +87,9 @@ def parse_report(html, night):
 
 def number(value):
     if value.startswith(("▼", "▽")):
-        value = "-" + value[1:]
+        value = "-" + value[1:].lstrip("−-")
     elif value.startswith(("▲", "△")):
-        value = value[1:]
+        value = value[1:].lstrip("+")
     result = Decimal(value.rstrip("%").replace(",", ""))
     if not result.is_finite():
         raise ValueError("Non-finite TAIFEX number")

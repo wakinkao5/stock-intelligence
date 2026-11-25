@@ -1,27 +1,64 @@
-name: 更新國際市場每日收盤資料
+name: 全天候市場行情更新
+run-name: Market refresh ${{ github.event.schedule == '07,37 * * * *' && 'primary' || github.event.schedule == '22,52 * * * *' && 'watchdog' || github.event_name }}
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/update-global.yml
+      - scripts/update_global.py
   schedule:
-    - cron: '30 0 * * 1-6' # 08:30 Asia/Taipei, Mon-Sat
-    - cron: '30 8 * * 1-5' # 16:30 Asia/Taipei, Mon-Fri
+    - cron: '07,37 * * * *'
+    - cron: '22,52 * * * *'
 permissions:
   contents: write
+  actions: read
+concurrency:
+  group: market-refresh-main
+  cancel-in-progress: false
 jobs:
   update:
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-      - name: Fetch delayed international closes
-        run: python scripts/update_global.py
-      - name: Commit verified quotes
+      - name: Check missing or failed primary run
+        id: guard
+        if: github.event.schedule == '22,52 * * * *'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          slot=$(python -c 'from datetime import datetime,timedelta,timezone; n=datetime.now(timezone.utc)-timedelta(minutes=15); print((n-timedelta(minutes=(n.minute-7)%30,seconds=n.second,microseconds=n.microsecond)).isoformat())')
+          if gh api --method GET "repos/$GITHUB_REPOSITORY/actions/workflows/update-global.yml/runs" -f event=schedule -f created=">=$slot" -F per_page=20 --jq '.workflow_runs[] | select(.display_title=="Market refresh primary" and .conclusion=="success") | .id' > "$RUNNER_TEMP/primary-runs" && test -s "$RUNNER_TEMP/primary-runs"; then
+            echo 'skip=true' >> "$GITHUB_OUTPUT"
+            echo "Primary check for $slot succeeded: $(paste -sd, "$RUNNER_TEMP/primary-runs")" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "Retrying from sources because no successful primary run for $slot was found" >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - name: Verify and commit latest available market data
+        if: steps.guard.outputs.skip != 'true'
+        env:
+          SCHEDULE: ${{ github.event.schedule }}
+          MARKET_REPORT: ${{ runner.temp }}/market-report.json
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add data/global.json
-          if ! git diff --cached --quiet; then
-            git commit -m 'Update verified delayed global closes'
-            git push
-          fi
+          for attempt in 1 2 3; do
+            git fetch origin main
+            git reset --hard origin/main
+            result=0
+            python scripts/update_global.py || result=$?
+            git add data/global.json data/taiex.json data/night-futures.json data/verification.json
+            if git diff --cached --quiet; then exit "$result"; fi
+            git commit -m 'Update verified market quotes'
+            if git push origin HEAD:main; then exit "$result"; fi
+            sleep 4
+          done
+          exit 1
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.guard.outputs.skip != 'true'
+        with:
+          name: market-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/market-report.json
+          if-no-files-found: warn
+          retention-days: 30
