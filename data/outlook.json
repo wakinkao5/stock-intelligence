@@ -85,6 +85,7 @@
         "symbol": "^IXIC",
         "date": "2026-11-24",
         "close": 23733.5391,
+        "change": -356.0215,
         "change_pct": -1.48,
         "exchange_timezone": "America/New_York",
         "session_complete": true,
@@ -96,6 +97,7 @@
         "symbol": "^SOX",
         "date": "2026-11-24",
         "close": 8832.5,
+        "change": -755.5498,
         "change_pct": -7.88,
         "exchange_timezone": "America/New_York",
         "session_complete": true,
@@ -107,6 +109,7 @@
         "symbol": "NVDA",
         "date": "2026-11-24",
         "close": 155.38,
+        "change": -9.67,
         "change_pct": -5.86,
         "exchange_timezone": "America/New_York",
         "session_complete": true,
@@ -118,6 +121,7 @@
         "symbol": "TSM",
         "date": "2026-11-24",
         "close": 349.2,
+        "change": -14.4,
         "change_pct": -3.96,
         "exchange_timezone": "America/New_York",
         "session_complete": true,
@@ -146,5 +150,5 @@
   },
   "date": "2026-11-26",
   "status": "provisional",
-  "generated_at": "2026-11-25T18:35:07+08:00"
+  "generated_at": "2026-11-25T18:55:31+08:00"
 }
