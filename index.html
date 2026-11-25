@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f3f6fa"><title>台股智慧決策中心 V3.15.7</title><style>
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f3f6fa"><title>台股智慧決策中心 V3.16</title><style>
 :root{font-family:-apple-system,BlinkMacSystemFont,'Noto Sans TC','Microsoft JhengHei',sans-serif;color:#193454;background:#f3f6fa}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{cursor:pointer}header{background:#fff;border-bottom:1px solid #e4eaf1;position:sticky;top:0;z-index:5}.wrap{max-width:1080px;margin:auto;padding:16px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.eyebrow{font-size:10px;letter-spacing:1.3px;color:#718096}h1{font-size:23px;margin:3px 0}h2{font-size:18px;margin:0}h3{font-size:15px;margin:0}p{line-height:1.6}.muted{color:#718096}.small{font-size:12px}.pill{font-size:11px;background:#eaf2fc;color:#285b91;border-radius:999px;padding:5px 9px;white-space:nowrap}.grid{display:grid;grid-template-columns:1.3fr 1fr;gap:15px}.card{background:#fff;border:1px solid #e5ebf2;border-radius:17px;padding:18px;box-shadow:0 2px 9px #17365d08;margin-bottom:15px}.cardhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:15px}.index{font-size:36px;font-weight:750;letter-spacing:-1px;margin:9px 0 3px}.red{color:#c53939}.green{color:#15803d}.trend{width:100%;height:170px;background:#fbfcfe;border-radius:12px;margin-top:14px}.metrics,.two,.five,.four{display:grid;gap:8px}.metrics{grid-template-columns:repeat(3,1fr)}.two{grid-template-columns:repeat(2,1fr)}.five{grid-template-columns:repeat(5,1fr)}.four{grid-template-columns:repeat(4,1fr)}.metric,.tile{padding:9px;background:#f3f6fa;border-radius:11px}.metric strong{display:block;margin-top:7px}.weather{display:flex;align-items:center;gap:16px;background:#f0f6fc;border-radius:12px;padding:15px}.emoji{font-size:49px;line-height:1}.weather strong{font-size:21px}.timeline button{border:1px solid #e1e9f1;border-radius:12px;background:#f7f9fc;padding:12px 4px;color:#244667;min-width:0}.timeline button.active{background:#e5f0ff;border-color:#70a5e6}.timeline button:disabled{opacity:.48;cursor:not-allowed}.timeline .time{font-size:12px;font-weight:700}.timeline .wx{font-size:24px;margin:5px}.details{background:#f5f8fc;border-radius:11px;padding:13px;margin-top:12px;font-size:13px;line-height:1.7}.market{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #edf1f5;padding:11px 0;gap:10px}.market:last-child{border-bottom:0}.market small{display:block;color:#718096;margin-top:3px}.nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.nav button,.action{border:1px solid #cddded;background:#fff;color:#245788;border-radius:10px;padding:9px 12px}.nav button.active,.action.primary{background:#245788;color:white}.notice{border-left:3px solid #7ba8d8;background:#f1f6fc;padding:12px;font-size:13px;border-radius:7px}.hide{display:none!important}label{display:block;font-size:12px;color:#64748b;margin:8px 0}input,select{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}.fieldrow{display:flex;gap:9px}.fieldrow>*{flex:1}.history{display:flex;justify-content:space-between;border-bottom:1px solid #edf1f5;padding:11px 0;font-size:13px}.history:last-child{border:0}.refreshbar{display:flex;align-items:center;justify-content:space-between;gap:12px}.refreshbar button{white-space:nowrap}@media(max-width:560px){.refreshbar{align-items:flex-start;flex-direction:column}}.footer{text-align:center;color:#8190a3;font-size:11px;padding:20px 0 40px}.empty{font-size:13px;color:#64748b;background:#f6f8fb;border-radius:9px;padding:12px}.link{border:0;background:transparent;color:#245788;padding:4px;font-size:12px}svg text{font-family:inherit}@media(max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding:12px}h1{font-size:20px}.index{font-size:32px}.card{padding:15px}.metrics .metric{padding:9px;font-size:12px}.metric strong{font-size:12px}.five .tile{padding:6px 2px;text-align:center;font-size:11px}.four{gap:5px}.timeline button{padding:9px 2px}.weather{gap:12px}}
 
 .chart-shell{position:relative;margin-top:14px}.chart-shell .trend{margin-top:0}.forecast-chip{position:absolute;right:9px;top:8px;z-index:2;background:#fff;border:1px solid #dbe5ef;border-radius:12px;box-shadow:0 2px 8px #19345415;max-width:190px}.forecast-chip summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px;padding:6px 9px;font-size:12px;font-weight:700}.forecast-chip summary::-webkit-details-marker{display:none}.forecast-chip summary .wxicon{font-size:24px}.forecast-chip[open]{max-width:min(260px,85%)}.forecast-chip .forecast-info{padding:0 10px 10px;font-size:12px;line-height:1.5;color:#52647a}.forecast-info strong{color:#193454}.forecast-info p{margin:5px 0}.forecast-info .muted{font-size:11px}
@@ -103,41 +103,21 @@
  .forecast-card-main{font-size:13px}
  .forecast-card-head{font-size:10px}
 }
-</style></head><body><header><div class="wrap"><div class="top"><div><div class="eyebrow">TAIWAN STOCK INTELLIGENCE</div><h1>台股智慧決策中心</h1><div class="small muted">市場情報・AI 研判・投資決策輔助</div></div><span class="pill">V3.15.7</span></div><nav class="nav" aria-label="主要導覽"><button class="active" data-page="home">首頁</button><button data-page="stock">個股健檢</button><button data-page="personal">個人資產</button><button data-page="goal">配息目標</button></nav></div></header><main class="wrap">
-<div class="notice" style="margin:3px 0 15px"><div class="refreshbar"><div><b>市場資料</b>｜<span id="data-status">正在讀取已發布的收盤資料…</span><div class="small muted" id="refresh-status" aria-live="polite">開啟網站會自動檢查；按「立即更新行情」可重新讀取已發布的日盤、夜盤與國際資料。</div></div><button class="action primary" id="refresh-now" type="button">↻ 立即更新行情</button></div></div>
-<section id="home"><div class="grid"><div><article class="card"><div class="cardhead"><h2>台灣加權指數</h2><span class="pill" id="index-source">等待資料</span></div><div class="index-forecast-row"><div class="index-quote"><div class="index" id="index-value">—</div><div id="index-change" class="muted"><b>等待收盤資料</b></div></div><details class="forecast-chip" id="forecast-chip"><summary aria-label="查看下一交易日預測詳情"><span class="forecast-card-head"><span class="forecast-card-title" id="forecast-day">隔日預測</span><span class="forecast-card-state" id="forecast-state">待研判</span></span><span class="forecast-card-main"><span class="wxicon" id="forecast-icon">☁️</span><span class="forecast-card-direction" id="forecast-label">待研判</span></span><span class="forecast-prob" id="forecast-prob">預估機率：待模型驗證</span><span class="forecast-card-update" id="forecast-updated">評估依據：等待資料</span></summary><div class="forecast-expanded"><div class="forecast-info" id="forecast-info"><p>等待台股收盤與國際行情資料。</p></div></div></details></div><div class="chart-shell"><svg class="trend" id="close-chart" viewBox="0 0 600 170" preserveAspectRatio="none" role="img" aria-label="最近交易日收盤走勢圖"><text x="18" y="85" fill="#718096">收盤歷史資料尚未載入</text></svg></div><div class="details" id="beginner-summary" aria-live="polite"><b>一句話看懂今天台股</b><p class="small">正在讀取已發布的收盤資料…</p></div><div class="metrics home-key-metrics"><div class="metric"><span class="muted small">最近交易日</span><strong id="latest-date">—</strong></div><div class="metric" id="trade-value-box"><span class="muted small">上市成交值</span><strong id="trade-value">資料同步中</strong></div></div><div class="details quarter-compact" id="quarter-metrics">Q4（10/1 起）歷史統計讀取中…</div></article>
-<article class="card"><div class="cardhead"><h2>今日台股怎麼看？</h2><span class="pill" id="ai-state">等待分析資料</span></div><div class="weather"><div class="emoji" id="analysis-icon">☁️</div><div><strong id="analysis-head">等待歷史行情</strong><div class="small muted" id="analysis-sub">依實際收盤與歷史數據計算，不冒充盤前預測。</div></div></div><div class="details" id="analysis-details">正在計算 Q4 走勢…</div><div class="details" id="weekly-forecast" aria-live="polite">正在建立未來五個交易日趨勢…</div></article>
+</style></head><body><header><div class="wrap"><div class="top"><div><div class="eyebrow">TAIWAN STOCK INTELLIGENCE</div><h1>台股智慧決策中心</h1><div class="small muted">市場情報・AI 研判・投資決策輔助</div></div><span class="pill">V3.16</span></div><nav class="nav" aria-label="主要導覽"><button class="active" data-page="home">首頁</button><button data-page="stock">個股健檢</button><button data-page="personal">個人資產</button><button data-page="goal">配息目標</button></nav></div></header><main class="wrap">
+<div class="notice" style="margin:3px 0 15px"><div class="refreshbar"><div><b>市場資料</b>｜<span id="data-status">正在讀取已發布的收盤資料…</span><div class="small muted" id="refresh-status" aria-live="polite">開啟網站會自動檢查；按「立即更新行情」可檢查已發布的收盤、夜盤與國際資料。</div></div><button class="action primary" id="refresh-now" type="button">↻ 立即更新行情</button></div></div>
+<section id="home"><div class="grid"><div><article class="card"><div class="cardhead"><h2>台灣加權指數</h2><span class="pill" id="index-source">等待資料</span></div><div class="index-forecast-row"><div class="index-quote"><div class="index" id="index-value">—</div><div id="index-change" class="muted"><b>等待收盤資料</b></div></div><details class="forecast-chip" id="forecast-chip"><summary aria-label="查看預測依據"><span class="forecast-card-head"><span class="forecast-card-title" id="forecast-day">隔日預測</span><span class="forecast-card-state" id="forecast-state">待研判</span></span><span class="forecast-card-main"><span class="wxicon" id="forecast-icon">☁️</span><span class="forecast-card-direction" id="forecast-label">待研判</span></span><span class="forecast-prob" id="forecast-prob">機率尚未校準</span><span class="forecast-card-update" id="forecast-updated">評估依據：等待資料</span></summary><div class="forecast-expanded"><div class="forecast-info" id="forecast-info"><p>等待台股收盤與國際行情資料。</p></div></div></details></div><div class="chart-shell"><svg class="trend" id="close-chart" viewBox="0 0 600 170" preserveAspectRatio="none" role="img" aria-label="最近交易日收盤走勢圖"><text x="18" y="85" fill="#718096">收盤歷史資料尚未載入</text></svg></div><div class="details" id="beginner-summary" aria-live="polite"><b>一句話看懂今天台股</b><p class="small">正在讀取已發布的收盤資料…</p></div><div class="metrics home-key-metrics"><div class="metric"><span class="muted small">最近交易日</span><strong id="latest-date">—</strong></div><div class="metric" id="trade-value-box"><span class="muted small">上市成交值</span><strong id="trade-value">資料同步中</strong></div></div><div class="details quarter-compact" id="quarter-metrics">Q4（10/1 起）歷史統計讀取中…</div></article>
+<article class="card"><div class="cardhead"><h2>收盤驗證</h2></div><div id="verification-today" aria-live="polite">等待正式收盤</div><div class="details" id="verification-stats">讀取準確率…</div></article><article class="card"><div class="cardhead"><h2>今日台股怎麼看？</h2><span class="pill" id="ai-state">等待分析資料</span></div><div class="weather"><div class="emoji" id="analysis-icon">☁️</div><div><strong id="analysis-head">等待歷史行情</strong><div class="small muted" id="analysis-sub">依實際收盤與歷史數據計算，不冒充盤前預測。</div></div></div><div class="details" id="analysis-details">正在計算 Q4 走勢…</div><div class="details" id="weekly-forecast" aria-live="polite">正在建立未來五個交易日趨勢…</div></article>
 <article class="card hide"><div class="cardhead"><h2>市場速報</h2><span class="pill">有資料才顯示</span></div><div class="weather" style="margin-bottom:12px"><div class="emoji" id="report-emoji">☁️</div><div><div class="small muted" id="report-label">08:40｜盤前</div><strong id="report-title">尚無正式速報</strong><div class="small muted" id="report-desc">等待報告資料</div></div></div><div class="four timeline" id="timeline"></div><div class="details" id="report-detail" aria-live="polite"></div></article></div>
 <div><article class="card"><div class="cardhead"><h2>國際市場｜對台股有什麼影響？</h2><span class="pill">最近可用報價</span></div><div class="details" style="margin:12px 0"><b>臺指期夜盤｜TX 盤後交易</b><div id="night-status" class="small muted" style="margin-top:8px">正在檢查夜盤資料…</div><div id="night-numbers" class="metrics" style="margin-top:10px;display:none"><div class="metric"><span class="small muted">近月契約／最後成交價</span><strong id="night-last">—</strong></div><div class="metric"><span class="small muted">漲跌點數／幅度</span><strong id="night-change">—</strong></div></div><p class="small muted" id="night-note">交易時段 15:00 至次日 05:00；官方盤後統計通常於次日上午發布，非盤中即時行情。期貨與現貨指數不同。</p><a href="https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=1" target="_blank" rel="noopener noreferrer">查看期交所官方夜盤行情 ↗</a></div><div class="global-status"><div><strong id="global-head">等待國際市場資料</strong><div class="small muted" id="global-sub">報價時間與來源將隨數據顯示，不將延遲報價稱為即時。</div></div></div><div class="details small" style="margin-top:12px"><b>新手怎麼看？</b> 美國科技股、半導體和台積電 ADR 的表現，可以幫助觀察台股隔日氣氛，但不能保證台股一定跟著漲跌。下方只顯示有來源的實際行情。</div><div id="markets" style="margin-top:12px"></div><p class="small muted">數據依交易所時間顯示；並非逐筆即時行情。</p></article><article class="card"><div class="cardhead"><h2>個股健檢</h2><button class="link" data-goto="stock">前往 ›</button></div><p class="small muted">想研究 00929 或其他股票？可從這裡進入。</p><button class="action primary" data-goto="stock">前往個股健檢</button></article><article class="card"><div class="cardhead"><h2>個人投資管理</h2><span class="pill">🔒 私人專區</span></div><p class="small muted">私人持股資料區尚未開放；配息目標可先使用本機試算。</p><button class="action" data-goto="goal">前往配息目標</button></article></div></div></section>
 <section id="stock" class="hide"><article class="card"><div class="cardhead"><h2>AI 個股健檢</h2><span class="pill">分析功能待串接</span></div><label for="ticker">台股股票代號</label><div class="fieldrow"><input id="ticker" inputmode="numeric" maxlength="6" placeholder="例如 2330" value="00929" aria-label="股票代號"><button class="action primary" id="analyze">建立健檢框架</button></div><p class="small muted" style="margin-top:10px">預設追蹤：00929｜復華台灣科技優息 ETF（尚未串接即時報價與個股預測）</p><div id="stock-output" class="hide"><h3 style="margin:20px 0 12px" id="stock-name"></h3><div class="metrics"><div class="metric"><b>短期</b><div class="small muted">1～4 週</div><p class="small">技術面、量價、支撐壓力</p></div><div class="metric"><b>中期</b><div class="small muted">1～3 個月</div><p class="small">籌碼、營收、產業趨勢</p></div><div class="metric"><b>長期</b><div class="small muted">6～12 個月</div><p class="small">財報、估值、成長風險</p></div></div><p class="notice">目前僅展示健檢欄位，未產生買賣建議或查詢真實股票資料。</p></div></article></section>
 <section id="personal" class="hide"><article class="card"><div class="cardhead"><h2>🔒 個人投資管理中心</h2><span class="pill">尚未開放</span></div><p>私人資產區將使用個人帳號、身分驗證及存取權限，確保不同使用者只能存取自己的資料。</p><div class="empty">尚未建立帳號系統與資料庫，因此不提供假登入、假 Face ID 或不安全的本機密碼保護。</div><div class="history"><span>持股與成本</span><span class="muted">規劃中</span></div><div class="history"><span>股息與損益</span><span class="muted">規劃中</span></div><div class="history"><span>追蹤清單與個股健檢</span><span class="muted">規劃中</span></div></article></section>
-<section id="goal" class="hide"><article class="card"><div class="cardhead"><h2>🎯 我的 ETF 配息目標</h2><span class="pill">新手試算・本機儲存</span></div><p class="small muted">以 00929 為起點。輸入自己的假設，試算距離每月配息目標還差多少、每月需要存多少。數值不會自動查詢最新行情。</p><div class="two"><div><label for="g-code">ETF 代號</label><input id="g-code" value="00929" maxlength="8"></div><div><label for="g-target">每月希望收到配息（元）</label><input id="g-target" type="number" min="0" step="100" value="5000"></div><div><label for="g-shares">目前持有股數（股）</label><input id="g-shares" type="number" min="0" step="1" value="0"></div><div><label for="g-cash">已準備投入的現金（元）</label><input id="g-cash" type="number" min="0" step="100" value="0"></div><div><label for="g-price">假設每股買進價格（元）</label><input id="g-price" type="number" min="0.01" step="0.01" placeholder="自行填入價格"></div><div><label for="g-div">假設每股每次配息（元）</label><input id="g-div" type="number" min="0" step="0.01" placeholder="自行填入配息"></div><div><label for="g-count">假設一年配息次數</label><input id="g-count" type="number" min="1" max="52" step="1" value="12"></div><div><label for="g-fee">每次配息預估扣款（元）</label><input id="g-fee" type="number" min="0" step="1" value="0"></div><div><label for="g-months">希望幾個月後達標</label><input id="g-months" type="number" min="1" max="600" step="1" value="36"></div></div><div class="fieldrow" style="margin-top:14px"><button class="action primary" id="g-calc">重新試算</button><button class="action" id="g-save">儲存目標</button><button class="action" id="g-export">備份設定</button></div><div id="g-output" class="details" aria-live="polite">請填入假設股價及每次配息，再按「重新試算」。</div><div class="notice" style="margin-top:12px">提醒：配息不是固定收益；股價、配息、稅費與買進成本都可能變動。試算不含交易手續費、證交稅及個人適用稅負，亦不保證達標。設定只儲存在目前瀏覽器，不會跨裝置同步；清除網站資料可能遺失，建議下載備份。</div></article></section><div class="footer">台股智慧決策中心 V3.15.7｜首頁整合與資料驗證｜非投資建議｜非即時行情；收盤歷史資料由 JSON 提供</div></main><script>
+<section id="goal" class="hide"><article class="card"><div class="cardhead"><h2>🎯 我的 ETF 配息目標</h2><span class="pill">新手試算・本機儲存</span></div><p class="small muted">以 00929 為起點。輸入自己的假設，試算距離每月配息目標還差多少、每月需要存多少。數值不會自動查詢最新行情。</p><div class="two"><div><label for="g-code">ETF 代號</label><input id="g-code" value="00929" maxlength="8"></div><div><label for="g-target">每月希望收到配息（元）</label><input id="g-target" type="number" min="0" step="100" value="5000"></div><div><label for="g-shares">目前持有股數（股）</label><input id="g-shares" type="number" min="0" step="1" value="0"></div><div><label for="g-cash">已準備投入的現金（元）</label><input id="g-cash" type="number" min="0" step="100" value="0"></div><div><label for="g-price">假設每股買進價格（元）</label><input id="g-price" type="number" min="0.01" step="0.01" placeholder="自行填入價格"></div><div><label for="g-div">假設每股每次配息（元）</label><input id="g-div" type="number" min="0" step="0.01" placeholder="自行填入配息"></div><div><label for="g-count">假設一年配息次數</label><input id="g-count" type="number" min="1" max="52" step="1" value="12"></div><div><label for="g-fee">每次配息預估扣款（元）</label><input id="g-fee" type="number" min="0" step="1" value="0"></div><div><label for="g-months">希望幾個月後達標</label><input id="g-months" type="number" min="1" max="600" step="1" value="36"></div></div><div class="fieldrow" style="margin-top:14px"><button class="action primary" id="g-calc">重新試算</button><button class="action" id="g-save">儲存目標</button><button class="action" id="g-export">備份設定</button></div><div id="g-output" class="details" aria-live="polite">請填入假設股價及每次配息，再按「重新試算」。</div><div class="notice" style="margin-top:12px">提醒：配息不是固定收益；股價、配息、稅費與買進成本都可能變動。試算不含交易手續費、證交稅及個人適用稅負，亦不保證達標。設定只儲存在目前瀏覽器，不會跨裝置同步；清除網站資料可能遺失，建議下載備份。</div></article></section><div class="footer">台股智慧決策中心 V3.16｜首頁整合與資料驗證｜非投資建議｜非即時行情；收盤歷史資料由 JSON 提供</div></main><script>
 const reports=[{time:'08:40',name:'盤前'},{time:'10:00',name:'早盤'},{time:'13:00',name:'尾盤'},{time:'16:00',name:'盤後'}];
 const timeline=document.getElementById('timeline');reports.forEach((r,i)=>{const b=document.createElement('button');b.innerHTML=`<div class="time">${r.time}</div><div class="small">${r.name}</div><div class="wx">—</div>`;b.onclick=()=>showReport(i);timeline.append(b)});
 function showReport(i){const r=reports[i];document.querySelectorAll('#timeline button').forEach((b,j)=>b.classList.toggle('active',i===j));document.getElementById('report-emoji').textContent='☁️';document.getElementById('report-label').textContent=r.time+'｜'+r.name;document.getElementById('report-title').textContent='尚無正式速報';document.getElementById('report-desc').textContent='自動報告尚未串接網站';document.getElementById('report-detail').textContent='ChatGPT 定時通知與本網站尚未建立資料同步；此處不顯示示意預測。';if(i===3&&window.closingSummary){document.getElementById('report-title').textContent=window.closingSummary.title;document.getElementById('report-desc').textContent='收盤數據摘要（非 AI 分析）';document.getElementById('report-detail').textContent=window.closingSummary.description+'｜正式 16:00 AI 報告尚未串接。';}}showReport(3);
 const marketNames=[['NASDAQ','美國科技股｜科技股氣氛'],['費城半導體','半導體產業｜電子股參考'],['NVIDIA','AI 龍頭｜AI 供應鏈'],['台積電 ADR','台積電美國掛牌股票｜海外評價'],['日經 225','日本股市｜亞洲市場氣氛']];document.getElementById('markets').innerHTML=marketNames.map(m=>`<div class="market"><div><b>${m[0]}</b><small>${m[1]}</small></div><b class="muted">待串接</b></div>`).join('');
 function renderBeginnerSummary(last,prev){const el=document.getElementById('beginner-summary');if(!el)return;el.replaceChildren();const title=document.createElement('b');title.textContent='一句話看懂今天台股';const p=document.createElement('p');p.className='small';if(!last||!prev){p.textContent='有效收盤資料不足，暫時無法判斷今天漲跌。';}else{const diff=last.close-prev.close;const pct=prev.close?Math.abs(diff/prev.close*100):0;const dir=diff>0?'上漲':diff<0?'下跌':'持平';p.textContent=`${last.date} 台股收盤${dir} ${Math.abs(diff).toLocaleString('zh-TW',{maximumFractionDigits:2})} 點（${pct.toFixed(2)}%）。${diff>0?'今天比前一交易日收得更高，但不代表明天一定上漲。':diff<0?'今天比前一交易日收得更低，但不代表明天一定下跌。':'今天與前一交易日收盤相同。'}`;}el.append(title,p);}
 function drawCloses(rows){const svg=document.getElementById('close-chart');if(rows.length<2)return;const values=rows.map(r=>r.close);let lo=Math.min(...values),hi=Math.max(...values);if(hi===lo){hi++;lo--}const x=i=>12+i*(576/(rows.length-1));const y=v=>146-(v-lo)/(hi-lo)*120;const path=rows.map((r,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(r.close).toFixed(1)}`).join(' ');const color=rows.length>1&&values.at(-1)>=values.at(-2)?'#c53939':'#15803d';const ns='http://www.w3.org/2000/svg';svg.replaceChildren();const line=document.createElementNS(ns,'path');line.setAttribute('d',path);line.setAttribute('fill','none');line.setAttribute('stroke',color);line.setAttribute('stroke-width','3.5');line.setAttribute('stroke-linecap','round');svg.append(line);for(const [pos,label] of [[0,rows[0].date],[rows.length-1,rows.at(-1).date]]){const t=document.createElementNS(ns,'text');t.setAttribute('x',String(x(pos)));t.setAttribute('text-anchor',pos===0?'start':'end');t.setAttribute('y','164');t.setAttribute('fill','#718096');t.setAttribute('font-size','12');t.textContent=label.slice(5);svg.append(t)}}
-let forecastDate='';
-const forecastSymbols={'強勢看漲':'☀️','偏多':'🌤️','不明':'☁️','偏空':'🌧️','強勢看跌':'⛈️'};
-async function loadForecast(tradingDate){
- const label=document.getElementById('forecast-label'),icon=document.getElementById('forecast-icon'),info=document.getElementById('forecast-info');
- icon.textContent='☁️';label.textContent='待預測';info.replaceChildren();
- const heading=document.createElement('strong');heading.textContent='08:40 盤前預測';info.append(heading);
- const add=(message,muted=false)=>{const p=document.createElement('p');p.textContent=message;if(muted)p.className='muted';info.append(p)};
- try{
-  const resp=await fetch('./data/predictions.json?cache='+Date.now(),{cache:'no-store'});
-  if(!resp.ok)throw Error('尚未建立預測資料檔');
-  const data=await resp.json();const entries=Array.isArray(data)?data:data.rows;
-  if(!Array.isArray(entries))throw Error('預測資料格式不正確');
-  const found=entries.find(r=>r&&r.date===tradingDate&&r.time==='08:40'&&Object.hasOwn(forecastSymbols,r.weather)&&typeof r.reason==='string'&&r.reason.trim());
-  if(!found)throw Error('該交易日尚無正式 08:40 預測');
-  icon.textContent=forecastSymbols[found.weather];label.textContent=found.weather;
-  add(tradingDate+'｜'+found.weather);add(found.reason);
-  if(found.risk&&typeof found.risk==='string')add('風險：'+found.risk);
-  add('僅顯示原始盤前預測，不隨收盤結果更改。',true);
- }catch(e){add(e.message);add('尚未串接自動預測；不以收盤漲跌倒推預測。',true)}
-}
 function showClosingSummary(last,prev){
  const date=last.date;const delta=prev?last.close-prev.close:null;
  const description=delta===null?'缺少前一交易日資料，無法計算漲跌。':delta>0?'收盤上漲 '+delta.toFixed(2)+' 點；僅代表當日收盤結果，不等於明日看漲。':delta<0?'收盤下跌 '+Math.abs(delta).toFixed(2)+' 點；僅代表當日收盤結果，不等於明日看跌。':'今日收盤與前一交易日持平。';
@@ -148,7 +128,6 @@ const repositoryData = 'https://raw.githubusercontent.com/wakinkao5/stock-intell
 const marketCache = new Map();
 let marketLoading = false;
 let lastMarketCheck = 0;
-let lastSuccessfulCheck = null;
 
 function taipeiDate(now = new Date()) {
  const parts = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(now);
@@ -176,7 +155,7 @@ async function fetchJson(url) {
  const controller = new AbortController();
  const timeout = setTimeout(()=>controller.abort(),7000);
  try {
-  const response = await fetch(url+'?v='+Date.now(),{cache:'no-store',signal:controller.signal});
+  const response = await fetch(url+(url.includes('?')?'&':'?')+'v='+Date.now(),{cache:'no-store',signal:controller.signal});
   if (!response.ok) throw Error('HTTP '+response.status);
   return await response.json();
  } finally {
@@ -208,17 +187,57 @@ function validCloses(data) {
    Number.isFinite(r.close)&&r.close>0&&(!i||r.date>data.rows[i-1].date));
 }
 
-async function loadTaiwan() {
- const {data,changed} = await marketFile('taiex.json',validCloses,
+async function checkOfficialClose(history) {
+ const now=new Date(), taipeiDay=taipeiDate(now);
+ const r=await fetchJson('https://www.twse.com.tw/rwd/zh/afterTrading/FMTQIK?response=json&date='+taipeiDay.replaceAll('-','').slice(0,6)+'01');
+ if(r.stat!=='OK'||!Array.isArray(r.fields)||!Array.isArray(r.data))throw Error('證交所回應格式異常');
+ const indices=['日期','發行量加權股價指數','成交金額'].map(name=>r.fields.indexOf(name));
+ if(indices.includes(-1))throw Error('證交所欄位缺漏');
+ const published=r.data.flatMap(row=>{
+  const raw=String(row[indices[0]]);
+  if(!/^\d{3}\/\d{2}\/\d{2}$/.test(raw))return [];
+  const [year,month,day]=raw.split('/');
+  const date=(1911+Number(year))+'-'+month+'-'+day;
+  const close=Number(String(row[indices[1]]).replaceAll(',',''));
+  const trade_value=Number(String(row[indices[2]]).replaceAll(',',''));
+  return date<=taipeiDay&&(date<taipeiDay||now>=new Date(date+'T13:30:00+08:00'))&&
+   Number.isFinite(close)&&close>0&&Number.isFinite(trade_value)&&trade_value>0?[{date,close,trade_value}]:[];
+ });
+ if(!published.length)throw Error('證交所未回傳有效正式收盤');
+ const latest=published.at(-1);
+ if(latest.date<=history.rows.at(-1).date)return {data:history,message:'證交所無較新的正式收盤'};
+ const merged=new Map(history.rows.map(row=>[row.date,row]));
+ for(const row of published)if(!merged.has(row.date))merged.set(row.date,row);
+ const data={...history,updated_at:now.toISOString(),rows:[...merged.values()].sort((a,b)=>a.date.localeCompare(b.date))};
+ marketCache.set('taiex.json',data);
+ return {data,message:'已直接取得證交所正式收盤'};
+}
+
+async function loadTaiwan(manual=false) {
+ const result = await marketFile('taiex.json',validCloses,
   d=>d.rows.at(-1).date+' '+d.updated_at,d=>JSON.stringify(d.rows));
+ let {data}=result;
+ let direct='';
+ if(manual){
+  try{
+   const checked=await checkOfficialClose(data);
+   data=checked.data;
+   direct='｜'+checked.message;
+  }catch(error){
+   direct='｜證交所直接查詢失敗（'+(error.name==='AbortError'?'連線逾時':error.message)+'）';
+  }
+ }
  const {rows} = data;
  const last = rows.at(-1), prev = rows.at(-2);
  document.getElementById('index-value').className='index '+(prev?(last.close>prev.close?'red':last.close<prev.close?'green':'muted'):'');document.getElementById('index-value').textContent=last.close.toLocaleString('zh-TW',{minimumFractionDigits:2,maximumFractionDigits:2});const delta=prev?last.close-prev.close:null;const pct=prev&&prev.close?delta/prev.close*100:null;const el=document.getElementById('index-change');el.className=delta===null?'muted':delta>0?'red':delta<0?'green':'muted';el.textContent=delta===null?'缺少前一交易日資料':`${delta>0?'▲':delta<0?'▼':'—'} ${Math.abs(delta).toFixed(2)}（${delta>=0?'+':''}${pct.toFixed(2)}%）`;document.getElementById('index-source').textContent=`${last.date} 收盤`;document.getElementById('latest-date').textContent=last.date;const hasTradeValue=Number.isFinite(last.trade_value)&&last.trade_value>0;document.getElementById('trade-value').textContent=hasTradeValue?(last.trade_value/1e8).toLocaleString('zh-TW',{maximumFractionDigits:0})+' 億':'待官方資料同步';window.forecastRows=rows;renderBeginnerSummary(last,prev);drawCloses(rows.filter(r=>r.date>="2026-10-01").slice(-65));renderQuarter(rows);document.getElementById("ai-state").textContent="歷史統計｜非AI預測";
  showClosingSummary(last,prev);
- const stale = last.date<expectedClose() ? '｜資料可能過期或當日休市' : '';
+ const now = new Date();
+ const stale = last.date < taipeiDate(now)
+  ? (now >= new Date(taipeiDate(now)+'T13:30:00+08:00') ? '｜今日正式收盤尚未取得（休市除外）' : '｜最近正式收盤')
+  : '';
  document.getElementById('data-status').textContent=
-  `來源：證交所 FMTQIK｜行情：${last.date} 13:30 正式收盤${stale}｜資料更新：${taipeiTime(data.updated_at)}｜預定檢查：平日 16:45｜盤中半小時來源待授權`;
- return changed;
+  `來源：證交所 FMTQIK｜行情：${last.date} 13:30 正式收盤${stale}｜資料更新：${taipeiTime(data.updated_at)}｜盤中行情尚無公開展示來源${direct}`;
+ return result.changed||data!==result.data;
 }
 
 const fmtPct=x=>(x>=0?'+':'')+x.toFixed(2)+'%';
@@ -299,14 +318,16 @@ async function loadGlobal(){
  return changed;
 }
 
-async function loadOfficial(){
+async function loadOfficial(manual=false){
  if(marketLoading)return;
- marketLoading=true;
+ const tooSoon = Date.now()-lastMarketCheck < 15000;
  const btn=document.getElementById('refresh-now'),status=document.getElementById('refresh-status');
+ if(tooSoon){if(manual)status.textContent='請間隔 15 秒再檢查｜上次檢查 '+taipeiTime(lastMarketCheck);return;}
+ marketLoading=true;
  btn.disabled=true;btn.textContent='讀取中…';
  status.textContent='正在讀取 GitHub 已發布的台股、夜盤及國際行情…';
  const sources=[
-  ['台股','data-status','taiex.json',loadTaiwan],
+  ['台股','data-status','taiex.json',()=>loadTaiwan(manual)],
   ['夜盤','night-status','night-futures.json',loadNightFutures],
   ['國際','global-sub','global.json',loadGlobal]
  ];
@@ -319,15 +340,14 @@ async function loadOfficial(){
     const message='讀取失敗，'+(previous?'已保留上次行情，資料可能過期':'目前無可用行情');
     element.textContent=message;
     if(file==='global.json')lastGlobalQuotes=[];
-    throw Error(name+'讀取失敗');
+    throw Error(name+'讀取失敗（'+error.message+'）');
    }
   }));
-  if(results.some(r=>r.status==='fulfilled'))lastSuccessfulCheck=new Date();
   status.textContent=results.map(r=>r.status==='fulfilled'?r.value:r.reason.message).join('｜')+
-   '｜最後成功讀取 '+taipeiTime(lastSuccessfulCheck)+'｜僅讀取 GitHub 已發布資料';
+   '｜最後檢查 '+taipeiTime(Date.now())+'｜盤中查詢未啟用：缺少公開展示來源';
   if(window.forecastRows){
    renderWeekly(window.forecastRows);
-   renderNextForecast(window.forecastRows);
+   await renderNextForecast(window.forecastRows);
   }
  } finally {
   lastMarketCheck=Date.now();
@@ -349,10 +369,9 @@ function forecastSignal(rows){
 }
 function nextWeekdays(iso,n){const days=[];let d=new Date(iso+'T12:00:00+08:00');for(let k=0;k<18&&days.length<n;k++){d=new Date(d.getTime()+86400000);const wd=d.getUTCDay();if(wd!==0&&wd!==6)days.push(new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(d));}return days;}
 
-// Forecasts below are provisional model scenarios, not archived 08:40 calls.
+// Forecasts below are provisional model scenarios, not archived 08:45 calls.
 // Never use closing results of a target date to construct its prediction.
 let lastGlobalQuotes=[];
-let forecastRender=0;
 function nextSessionDates(iso,n){return nextWeekdays(iso,n)}
 function buildOutlook(rows,quotes){
  const ret=n=>rows.length>n?(rows.at(-1).close/rows.at(-1-n).close-1)*100:null;
@@ -370,34 +389,53 @@ function buildOutlook(rows,quotes){
 }
 function outlookWeather(d){return d==='偏多'?'🌤️':d==='偏空'?'🌧️':'☁️'}
 async function renderNextForecast(rows){
- const render=++forecastRender;
- const label=document.getElementById('forecast-label'),icon=document.getElementById('forecast-icon'),info=document.getElementById('forecast-info');
- const day=nextSessionDates(rows.at(-1).date,1)[0];const f=buildOutlook(rows,lastGlobalQuotes);
- const dayEl=document.getElementById('forecast-day'),stateEl=document.getElementById('forecast-state'),updatedEl=document.getElementById('forecast-updated');
- const probability=document.getElementById('forecast-prob');
- const dayLabel=day.slice(5).replace('-','/');
- dayEl.textContent=dayLabel+' 動態預測';
- const insufficient=f.direction==='資料不足';
- stateEl.textContent=insufficient?'待研判':'尚未鎖定';
- // Convert the bounded direction score to a conservative, uncalibrated estimate.
- const upEstimate=f.score===null?null:Math.round(50+25*f.score);
- probability.textContent=upEstimate===null?'初估上漲機率：資料不足':`初估上漲機率：${upEstimate}%（未校準）`;
- updatedEl.textContent=insufficient?'評估依據：可用行情不足':'評估依據：台股收盤及已發布國際行情';
- label.textContent=f.direction==='資料不足'?'待研判':f.direction+'（初判）';icon.textContent=outlookWeather(f.direction);info.replaceChildren();
- const add=t=>{const p=document.createElement('p');p.textContent=t;info.append(p)};
- add('預測交易日：'+day+'（休市須依證交所行事曆確認）');
- add('收盤後初步研判：'+f.direction+'；非正式08:40預測。');
- add('國際訊號：'+f.usable.length+'/5 項可用；上漲 '+f.positive+'、下跌 '+f.negative+'。');
- add('台股近5日 '+(f.r5===null?'資料不足':fmtPct(f.r5))+'；近10日 '+(f.r10===null?'資料不足':fmtPct(f.r10))+'。');
- if(upEstimate!==null)add('百分比為方向分數換算：50% 加上方向分數 × 25 個百分點。上漲指下一交易日收盤高於前一交易日收盤。');
- add('本模型未採用夜盤日報。');
- try{const r=await fetchJson('./data/predictions.json');
- const j=r,entries=Array.isArray(j)?j:j.rows;
- const p=Array.isArray(entries)&&entries.find(x=>x&&x.date===day&&x.time==='08:40'&&Object.prototype.hasOwnProperty.call(forecastSymbols,x.weather)&&typeof x.reason==='string'&&x.reason.trim());
- if(!p||render!==forecastRender)return;
- label.textContent=p.weather;icon.textContent=forecastSymbols[p.weather];dayEl.textContent=dayLabel+' 正式預測';stateEl.textContent='已記錄';updatedEl.textContent='正式紀錄：08:40（台灣時間）';probability.textContent='正式紀錄未提供機率';info.replaceChildren();
- add('正式08:40預測：'+day);add('方向：'+p.weather);add('依據：'+p.reason);if(p.risk)add('風險：'+p.risk);
- }catch(e){/* Keep the on-page outlook when no archived forecast can be read. */}
+ const today=taipeiDate(), latest=rows.at(-1);
+ const now=new Date(), cutoff=new Date(today+'T08:45:00+08:00');
+ const isWeekday=![0,6].includes(new Date(today+'T12:00:00+08:00').getUTCDay()) && today!=='2026-12-25';
+ const day=isWeekday?today:nextSessionDates(today,1)[0];
+ const byId=id=>document.getElementById(id);
+ const info=byId('forecast-info');
+ const add=text=>{const p=document.createElement('p');p.textContent=text;info.append(p);};
+ const resultByDate=await Promise.allSettled([
+  marketFile('predictions.json',d=>Array.isArray(d.rows),d=>d.rows.at(-1)?.date??'',d=>JSON.stringify(d.rows)),
+  marketFile('verification.json',d=>Array.isArray(d.rows)&&!!d.stats,d=>d.rows.at(-1)?.date??'',d=>JSON.stringify(d.rows))
+ ]);
+ const [predictions,verification]=resultByDate.map(result=>result.status==='fulfilled'?result.value.data:null);
+ const official=predictions?.rows.find(p=>p.date===day&&p.time==='08:45'&&p.status==='locked');
+ const provisionalDay=latest.date>=day?nextSessionDates(latest.date,1)[0]:day;
+ const provisional=buildOutlook(rows.filter(r=>r.date<provisionalDay),lastGlobalQuotes);
+ byId('forecast-day').textContent=day.slice(5).replace('-','/')+' 08:45 預測';
+ byId('forecast-state').textContent=official?(official.on_time?'已鎖定':'延遲鎖定'):
+  !predictions?'紀錄讀取失敗':isWeekday&&now>=cutoff?'未鎖定':'待鎖定';
+ byId('forecast-label').textContent=official?.direction??(provisionalDay===day&&provisional.direction!=='資料不足'
+  ?provisional.direction+'（初判）':'待研判');
+ byId('forecast-icon').textContent=official?.icon??outlookWeather(provisionalDay===day?provisional.direction:'');
+ byId('forecast-updated').textContent=official?'鎖定 '+taipeiTime(official.locked_at):
+  provisionalDay===day&&provisional.direction!=='資料不足'?'依台股收盤及國際行情':'等待可用的正式紀錄';
+ byId('forecast-prob').textContent='機率尚未校準';
+ info.replaceChildren();
+ if(official){
+  add('預測交易日 '+official.date+'｜資料截止 '+taipeiTime(official.cutoff_at));
+  add('依據 '+official.reason);
+  add('風險 '+official.risk);
+ }else if(isWeekday&&now>=cutoff){
+  add(today+' 未鎖定，不列入準確率。');
+ }
+ if(provisional.direction!=='資料不足'&&(!official||provisionalDay!==day)){
+  add(provisionalDay+' 初判 '+provisional.direction+'｜台股收盤與 '+provisional.usable.length+' 項國際行情');
+ }
+ const pending=latest.date!==today;
+ const checked=verification?.rows.find(r=>r.date===today);
+ const labels={correct:'正確',incorrect:'錯誤',unlocked:'未鎖定，不列入準確率',late:'延遲鎖定，不列入準確率',insufficient:'資料不足，不列入準確率'};
+ byId('verification-today').textContent=!isWeekday&&pending?'今日休市':pending?'等待今日正式收盤｜'+
+  (official?.direction??(now>=cutoff?'未鎖定，不列入準確率':'等待 08:45 鎖定')):
+  today+' 收盤 '+latest.close.toLocaleString('zh-TW',{minimumFractionDigits:2})+'｜'+
+  (checked?.direction??official?.direction??'')+' '+(labels[checked?.status]??
+  (!verification?'驗證資料讀取失敗':!official?'未鎖定，不列入準確率':'等待驗證'));
+ const stat=verification?.stats;
+ const pct=value=>typeof value==='number'?(100*value).toFixed(1)+'%':'—';
+ byId('verification-stats').textContent=stat?
+  `有效 ${stat.valid}｜正確 ${stat.correct}｜錯誤 ${stat.incorrect}｜未鎖定 ${stat.unlocked}｜延遲 ${stat.late}｜累計 ${pct(stat.overall)}｜近 5 日 ${pct(stat.last5)}｜近 20 日 ${pct(stat.last20)}`:'準確率讀取失敗';
 }
 function renderWeekly(rows){
  const el=document.getElementById('weekly-forecast');el.replaceChildren();
@@ -410,7 +448,7 @@ function renderWeekly(rows){
 }
 
 loadOfficial();
-document.getElementById('refresh-now').addEventListener('click',loadOfficial);
+document.getElementById('refresh-now').addEventListener('click',()=>loadOfficial(true));
 const AUTO_REFRESH_MS=5*60*1000;
 setInterval(()=>{if(!document.hidden&&Date.now()-lastMarketCheck>=AUTO_REFRESH_MS)loadOfficial()},60*1000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)loadOfficial()});
