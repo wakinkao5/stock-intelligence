@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f3f6fa"><title>台股智慧決策中心 V3.17.1</title><style>
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f3f6fa"><title>台股智慧決策中心 V3.17.2</title><style>
 :root{font-family:-apple-system,BlinkMacSystemFont,'Noto Sans TC','Microsoft JhengHei',sans-serif;color:#193454;background:#f3f6fa}*{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{cursor:pointer}header{background:#fff;border-bottom:1px solid #e4eaf1;position:sticky;top:0;z-index:5}.wrap{max-width:1080px;margin:auto;padding:16px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.eyebrow{font-size:10px;letter-spacing:1.3px;color:#718096}h1{font-size:23px;margin:3px 0}h2{font-size:18px;margin:0}h3{font-size:15px;margin:0}p{line-height:1.6}.muted{color:#718096}.small{font-size:12px}.pill{font-size:11px;background:#eaf2fc;color:#285b91;border-radius:999px;padding:5px 9px;white-space:nowrap}.grid{display:grid;grid-template-columns:1.3fr 1fr;gap:15px}.card{background:#fff;border:1px solid #e5ebf2;border-radius:17px;padding:18px;box-shadow:0 2px 9px #17365d08;margin-bottom:15px}.cardhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:15px}.index{font-size:36px;font-weight:750;letter-spacing:-1px;margin:9px 0 3px}.red{color:#c53939}.green{color:#15803d}.trend{width:100%;height:170px;background:#fbfcfe;border-radius:12px;margin-top:14px}.metrics,.two,.five,.four{display:grid;gap:8px}.metrics{grid-template-columns:repeat(3,1fr)}.two{grid-template-columns:repeat(2,1fr)}.five{grid-template-columns:repeat(5,1fr)}.four{grid-template-columns:repeat(4,1fr)}.metric,.tile{padding:9px;background:#f3f6fa;border-radius:11px}.metric strong{display:block;margin-top:7px}.weather{display:flex;align-items:center;gap:16px;background:#f0f6fc;border-radius:12px;padding:15px}.emoji{font-size:49px;line-height:1}.weather strong{font-size:21px}.timeline button{border:1px solid #e1e9f1;border-radius:12px;background:#f7f9fc;padding:12px 4px;color:#244667;min-width:0}.timeline button.active{background:#e5f0ff;border-color:#70a5e6}.timeline button:disabled{opacity:.48;cursor:not-allowed}.timeline .time{font-size:12px;font-weight:700}.timeline .wx{font-size:24px;margin:5px}.details{background:#f5f8fc;border-radius:11px;padding:13px;margin-top:12px;font-size:13px;line-height:1.7}.market{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #edf1f5;padding:11px 0;gap:10px}.market:last-child{border-bottom:0}.market small{display:block;color:#718096;margin-top:3px}.nav{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}.nav button,.action{border:1px solid #cddded;background:#fff;color:#245788;border-radius:10px;padding:9px 12px}.nav button.active,.action.primary{background:#245788;color:white}.notice{border-left:3px solid #7ba8d8;background:#f1f6fc;padding:12px;font-size:13px;border-radius:7px}.hide{display:none!important}label{display:block;font-size:12px;color:#64748b;margin:8px 0}input,select{width:100%;padding:11px;border:1px solid #cbd5e1;border-radius:10px;background:#fff}.fieldrow{display:flex;gap:9px}.fieldrow>*{flex:1}.history{display:flex;justify-content:space-between;border-bottom:1px solid #edf1f5;padding:11px 0;font-size:13px}.history:last-child{border:0}.refreshbar{display:flex;align-items:center;justify-content:space-between;gap:12px}.refreshbar button{white-space:nowrap}@media(max-width:560px){.refreshbar{align-items:flex-start;flex-direction:column}}.footer{text-align:center;color:#8190a3;font-size:11px;padding:20px 0 40px}.empty{font-size:13px;color:#64748b;background:#f6f8fb;border-radius:9px;padding:12px}.link{border:0;background:transparent;color:#245788;padding:4px;font-size:12px}svg text{font-family:inherit}@media(max-width:760px){.grid{grid-template-columns:1fr}.wrap{padding:12px}h1{font-size:20px}.index{font-size:32px}.card{padding:15px}.metrics .metric{padding:9px;font-size:12px}.metric strong{font-size:12px}.five .tile{padding:6px 2px;text-align:center;font-size:11px}.four{gap:5px}.timeline button{padding:9px 2px}.weather{gap:12px}}
 
 .chart-shell{position:relative;margin-top:14px}.chart-shell .trend{margin-top:0}.forecast-chip{position:absolute;right:9px;top:8px;z-index:2;background:#fff;border:1px solid #dbe5ef;border-radius:12px;box-shadow:0 2px 8px #19345415;max-width:190px}.forecast-chip summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:6px;padding:6px 9px;font-size:12px;font-weight:700}.forecast-chip summary::-webkit-details-marker{display:none}.forecast-chip summary .wxicon{font-size:24px}.forecast-chip[open]{max-width:min(260px,85%)}.forecast-chip .forecast-info{padding:0 10px 10px;font-size:12px;line-height:1.5;color:#52647a}.forecast-info strong{color:#193454}.forecast-info p{margin:5px 0}.forecast-info .muted{font-size:11px}
@@ -14,8 +14,11 @@
 #night-numbers .metric .small{font-size:13px;line-height:1.45}
 #quarter-metrics .metric{text-align:center;min-width:0}
 #quarter-metrics .metric strong{overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
-#markets .market>div{min-width:0;flex:1}
-#markets .market>b{text-align:right;flex:0 0 auto;font-variant-numeric:tabular-nums}
+#markets .market{display:grid;grid-template-columns:minmax(0,1fr) max-content;align-items:center;gap:10px}
+#markets .market-label,#markets .market-quote{display:grid;gap:3px;min-width:0}
+#markets .market-label{line-height:1.35}
+#markets .market-label small{margin:0;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#markets .market-quote{font-size:clamp(15px,4vw,18px);line-height:1.25;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 @media(max-width:760px){
  .refreshbar{gap:10px}
  .refreshbar>div{min-width:0;line-height:1.55}
@@ -26,8 +29,6 @@
  #night-numbers .metric strong{font-size:clamp(18px,5vw,25px)}
  .metrics>.metric{min-width:0}
  .metrics>.metric strong{overflow-wrap:anywhere}
- #markets .market{gap:12px}
- #markets .market>b{max-width:47%;font-size:clamp(14px,4vw,19px);overflow-wrap:anywhere}
  .cardhead{flex-wrap:wrap}
  .cardhead .pill{max-width:100%;white-space:normal;text-align:center}
 }
@@ -103,7 +104,7 @@
  .forecast-card-main{font-size:13px}
  .forecast-card-head{font-size:10px}
 }
-</style></head><body><header><div class="wrap"><div class="top"><div><div class="eyebrow">TAIWAN STOCK INTELLIGENCE</div><h1>台股智慧決策中心</h1><div class="small muted">市場情報・AI 研判・投資決策輔助</div></div><span class="pill">V3.17.1</span></div><nav class="nav" aria-label="主要導覽"><button class="active" data-page="home">首頁</button><button data-page="stock">個股健檢</button><button data-page="personal">個人資產</button><button data-page="goal">配息目標</button></nav></div></header><main class="wrap">
+</style></head><body><header><div class="wrap"><div class="top"><div><div class="eyebrow">TAIWAN STOCK INTELLIGENCE</div><h1>台股智慧決策中心</h1><div class="small muted">市場情報・AI 研判・投資決策輔助</div></div><span class="pill">V3.17.2</span></div><nav class="nav" aria-label="主要導覽"><button class="active" data-page="home">首頁</button><button data-page="stock">個股健檢</button><button data-page="personal">個人資產</button><button data-page="goal">配息目標</button></nav></div></header><main class="wrap">
 <div class="notice" style="margin:3px 0 15px"><div class="refreshbar"><div><b>市場資料</b>｜<span id="data-status">正在讀取已發布的收盤資料…</span><div class="small muted" id="refresh-status" aria-live="polite">開啟網站會自動載入行情；按「立即更新行情」可直接查詢證交所最新可用的正式收盤。</div></div><button class="action primary" id="refresh-now" type="button">↻ 立即更新行情</button></div></div>
 <section id="home"><div class="grid"><div><article class="card"><div class="cardhead"><h2>台灣加權指數</h2><span class="pill" id="index-source">等待資料</span></div><div class="index-forecast-row"><div class="index-quote"><div class="index" id="index-value">—</div><div id="index-change" class="muted"><b>等待收盤資料</b></div></div><details class="forecast-chip" id="forecast-chip"><summary aria-label="查看預測依據"><span class="forecast-card-head"><span class="forecast-card-title" id="forecast-day">隔日預測</span><span class="forecast-card-state" id="forecast-state">待研判</span></span><span class="forecast-card-main"><span class="wxicon" id="forecast-icon">☁️</span><span class="forecast-card-direction" id="forecast-label">待研判</span></span><span class="forecast-card-update" id="forecast-estimate"></span><span class="forecast-prob" id="forecast-prob">機率尚未校準</span><span class="forecast-card-update" id="forecast-updated">評估依據：等待資料</span></summary><div class="forecast-expanded"><div class="forecast-info" id="forecast-info"><p>等待台股收盤與國際行情資料。</p></div></div></details></div><div class="chart-shell"><svg class="trend" id="close-chart" viewBox="0 0 600 170" preserveAspectRatio="none" role="img" aria-label="最近交易日收盤走勢圖"><text x="18" y="85" fill="#718096">收盤歷史資料尚未載入</text></svg></div><div class="details" id="beginner-summary" aria-live="polite"><b>一句話看懂今天台股</b><p class="small">正在讀取已發布的收盤資料…</p></div><div class="metrics home-key-metrics"><div class="metric"><span class="muted small">最近交易日</span><strong id="latest-date">—</strong></div><div class="metric" id="trade-value-box"><span class="muted small">上市成交值</span><strong id="trade-value">資料同步中</strong></div></div><div class="details quarter-compact" id="quarter-metrics">Q4（10/1 起）歷史統計讀取中…</div></article>
 <article class="card"><div class="cardhead"><h2>收盤驗證</h2></div><div id="verification-today" aria-live="polite">等待正式收盤</div><div class="details" id="verification-stats">讀取準確率…</div></article><article class="card"><div class="cardhead"><h2>今日台股怎麼看？</h2><span class="pill" id="ai-state">等待分析資料</span></div><div class="weather"><div class="emoji" id="analysis-icon">☁️</div><div><strong id="analysis-head">等待歷史行情</strong><div class="small muted" id="analysis-sub">依實際收盤與歷史數據計算，不冒充盤前預測。</div></div></div><div class="details" id="analysis-details">正在計算 Q4 走勢…</div><div class="details" id="weekly-forecast" aria-live="polite">正在建立未來五個交易日趨勢…</div></article>
@@ -111,11 +112,11 @@
 <div><article class="card"><div class="cardhead"><h2>國際市場｜對台股有什麼影響？</h2><span class="pill">最近可用報價</span></div><div class="details" style="margin:12px 0"><b>臺指期夜盤｜TX 盤後交易</b><div id="night-status" class="small muted" style="margin-top:8px">正在檢查夜盤資料…</div><div id="night-numbers" class="metrics" style="margin-top:10px;display:none"><div class="metric"><span class="small muted">近月契約／最後成交價</span><strong id="night-last">—</strong></div><div class="metric"><span class="small muted">漲跌點數／幅度</span><strong id="night-change">—</strong></div></div><p class="small muted" id="night-note">交易時段 15:00 至次日 05:00；官方盤後統計通常於次日上午發布，非盤中即時行情。期貨與現貨指數不同。</p><a href="https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=1" target="_blank" rel="noopener noreferrer">查看期交所官方夜盤行情 ↗</a></div><div class="global-status"><div><strong id="global-head">等待國際市場資料</strong><div class="small muted" id="global-sub">報價時間與來源將隨數據顯示，不將延遲報價稱為即時。</div></div></div><div class="details small" style="margin-top:12px"><b>新手怎麼看？</b> 美國科技股、半導體和台積電 ADR 的表現，可以幫助觀察台股隔日氣氛，但不能保證台股一定跟著漲跌。下方只顯示有來源的實際行情。</div><div id="markets" style="margin-top:12px"></div><p class="small muted">數據依交易所時間顯示；並非逐筆即時行情。</p></article><article class="card"><div class="cardhead"><h2>個股健檢</h2><button class="link" data-goto="stock">前往 ›</button></div><p class="small muted">想研究 00929 或其他股票？可從這裡進入。</p><button class="action primary" data-goto="stock">前往個股健檢</button></article><article class="card"><div class="cardhead"><h2>個人投資管理</h2><span class="pill">🔒 私人專區</span></div><p class="small muted">私人持股資料區尚未開放；配息目標可先使用本機試算。</p><button class="action" data-goto="goal">前往配息目標</button></article></div></div></section>
 <section id="stock" class="hide"><article class="card"><div class="cardhead"><h2>AI 個股健檢</h2><span class="pill">分析功能待串接</span></div><label for="ticker">台股股票代號</label><div class="fieldrow"><input id="ticker" inputmode="numeric" maxlength="6" placeholder="例如 2330" value="00929" aria-label="股票代號"><button class="action primary" id="analyze">建立健檢框架</button></div><p class="small muted" style="margin-top:10px">預設追蹤：00929｜復華台灣科技優息 ETF（尚未串接即時報價與個股預測）</p><div id="stock-output" class="hide"><h3 style="margin:20px 0 12px" id="stock-name"></h3><div class="metrics"><div class="metric"><b>短期</b><div class="small muted">1～4 週</div><p class="small">技術面、量價、支撐壓力</p></div><div class="metric"><b>中期</b><div class="small muted">1～3 個月</div><p class="small">籌碼、營收、產業趨勢</p></div><div class="metric"><b>長期</b><div class="small muted">6～12 個月</div><p class="small">財報、估值、成長風險</p></div></div><p class="notice">目前僅展示健檢欄位，未產生買賣建議或查詢真實股票資料。</p></div></article></section>
 <section id="personal" class="hide"><article class="card"><div class="cardhead"><h2>🔒 個人投資管理中心</h2><span class="pill">尚未開放</span></div><p>私人資產區將使用個人帳號、身分驗證及存取權限，確保不同使用者只能存取自己的資料。</p><div class="empty">尚未建立帳號系統與資料庫，因此不提供假登入、假 Face ID 或不安全的本機密碼保護。</div><div class="history"><span>持股與成本</span><span class="muted">規劃中</span></div><div class="history"><span>股息與損益</span><span class="muted">規劃中</span></div><div class="history"><span>追蹤清單與個股健檢</span><span class="muted">規劃中</span></div></article></section>
-<section id="goal" class="hide"><article class="card"><div class="cardhead"><h2>🎯 我的 ETF 配息目標</h2><span class="pill">新手試算・本機儲存</span></div><p class="small muted">以 00929 為起點。輸入自己的假設，試算距離每月配息目標還差多少、每月需要存多少。數值不會自動查詢最新行情。</p><div class="two"><div><label for="g-code">ETF 代號</label><input id="g-code" value="00929" maxlength="8"></div><div><label for="g-target">每月希望收到配息（元）</label><input id="g-target" type="number" min="0" step="100" value="5000"></div><div><label for="g-shares">目前持有股數（股）</label><input id="g-shares" type="number" min="0" step="1" value="0"></div><div><label for="g-cash">已準備投入的現金（元）</label><input id="g-cash" type="number" min="0" step="100" value="0"></div><div><label for="g-price">假設每股買進價格（元）</label><input id="g-price" type="number" min="0.01" step="0.01" placeholder="自行填入價格"></div><div><label for="g-div">假設每股每次配息（元）</label><input id="g-div" type="number" min="0" step="0.01" placeholder="自行填入配息"></div><div><label for="g-count">假設一年配息次數</label><input id="g-count" type="number" min="1" max="52" step="1" value="12"></div><div><label for="g-fee">每次配息預估扣款（元）</label><input id="g-fee" type="number" min="0" step="1" value="0"></div><div><label for="g-months">希望幾個月後達標</label><input id="g-months" type="number" min="1" max="600" step="1" value="36"></div></div><div class="fieldrow" style="margin-top:14px"><button class="action primary" id="g-calc">重新試算</button><button class="action" id="g-save">儲存目標</button><button class="action" id="g-export">備份設定</button></div><div id="g-output" class="details" aria-live="polite">請填入假設股價及每次配息，再按「重新試算」。</div><div class="notice" style="margin-top:12px">提醒：配息不是固定收益；股價、配息、稅費與買進成本都可能變動。試算不含交易手續費、證交稅及個人適用稅負，亦不保證達標。設定只儲存在目前瀏覽器，不會跨裝置同步；清除網站資料可能遺失，建議下載備份。</div></article></section><div class="footer">台股智慧決策中心 V3.17.1｜首頁整合與資料驗證｜非投資建議｜非即時行情；收盤歷史資料由 JSON 提供</div></main><script>
+<section id="goal" class="hide"><article class="card"><div class="cardhead"><h2>🎯 我的 ETF 配息目標</h2><span class="pill">新手試算・本機儲存</span></div><p class="small muted">以 00929 為起點。輸入自己的假設，試算距離每月配息目標還差多少、每月需要存多少。數值不會自動查詢最新行情。</p><div class="two"><div><label for="g-code">ETF 代號</label><input id="g-code" value="00929" maxlength="8"></div><div><label for="g-target">每月希望收到配息（元）</label><input id="g-target" type="number" min="0" step="100" value="5000"></div><div><label for="g-shares">目前持有股數（股）</label><input id="g-shares" type="number" min="0" step="1" value="0"></div><div><label for="g-cash">已準備投入的現金（元）</label><input id="g-cash" type="number" min="0" step="100" value="0"></div><div><label for="g-price">假設每股買進價格（元）</label><input id="g-price" type="number" min="0.01" step="0.01" placeholder="自行填入價格"></div><div><label for="g-div">假設每股每次配息（元）</label><input id="g-div" type="number" min="0" step="0.01" placeholder="自行填入配息"></div><div><label for="g-count">假設一年配息次數</label><input id="g-count" type="number" min="1" max="52" step="1" value="12"></div><div><label for="g-fee">每次配息預估扣款（元）</label><input id="g-fee" type="number" min="0" step="1" value="0"></div><div><label for="g-months">希望幾個月後達標</label><input id="g-months" type="number" min="1" max="600" step="1" value="36"></div></div><div class="fieldrow" style="margin-top:14px"><button class="action primary" id="g-calc">重新試算</button><button class="action" id="g-save">儲存目標</button><button class="action" id="g-export">備份設定</button></div><div id="g-output" class="details" aria-live="polite">請填入假設股價及每次配息，再按「重新試算」。</div><div class="notice" style="margin-top:12px">提醒：配息不是固定收益；股價、配息、稅費與買進成本都可能變動。試算不含交易手續費、證交稅及個人適用稅負，亦不保證達標。設定只儲存在目前瀏覽器，不會跨裝置同步；清除網站資料可能遺失，建議下載備份。</div></article></section><div class="footer">台股智慧決策中心 V3.17.2｜首頁整合與資料驗證｜非投資建議｜非即時行情；收盤歷史資料由 JSON 提供</div></main><script>
 const reports=[{time:'08:40',name:'盤前'},{time:'10:00',name:'早盤'},{time:'13:00',name:'尾盤'},{time:'16:00',name:'盤後'}];
 const timeline=document.getElementById('timeline');reports.forEach((r,i)=>{const b=document.createElement('button');b.innerHTML=`<div class="time">${r.time}</div><div class="small">${r.name}</div><div class="wx">—</div>`;b.onclick=()=>showReport(i);timeline.append(b)});
 function showReport(i){const r=reports[i];document.querySelectorAll('#timeline button').forEach((b,j)=>b.classList.toggle('active',i===j));document.getElementById('report-emoji').textContent='☁️';document.getElementById('report-label').textContent=r.time+'｜'+r.name;document.getElementById('report-title').textContent='尚無正式速報';document.getElementById('report-desc').textContent='自動報告尚未串接網站';document.getElementById('report-detail').textContent='ChatGPT 定時通知與本網站尚未建立資料同步；此處不顯示示意預測。';if(i===3&&window.closingSummary){document.getElementById('report-title').textContent=window.closingSummary.title;document.getElementById('report-desc').textContent='收盤數據摘要（非 AI 分析）';document.getElementById('report-detail').textContent=window.closingSummary.description+'｜正式 16:00 AI 報告尚未串接。';}}showReport(3);
-const marketNames=[['道瓊工業指數','美國藍籌股'],['S&P 500','美國大盤'],['NASDAQ','美國科技股｜科技股氣氛'],['費城半導體','半導體產業｜電子股參考'],['NVIDIA','AI 龍頭｜AI 供應鏈'],['台積電 ADR','台積電美國掛牌股票｜海外評價'],['日經 225','日本股市｜亞洲市場氣氛'],['韓國 KOSPI','韓國股市'],['上櫃指數','台灣上櫃市場'],['台積電','台灣上市 2330'],['台指期日盤','臺股期貨日盤']];document.getElementById('markets').innerHTML=marketNames.map(m=>`<div class="market"><div><b>${m[0]}</b><small>${m[1]}</small></div><b class="muted">待串接</b></div>`).join('');
+const marketNames=[['道瓊工業指數','美國藍籌股'],['S&P 500','美國大盤'],['NASDAQ','美國科技股｜科技股氣氛'],['費城半導體','半導體產業｜電子股參考'],['NVIDIA','AI 龍頭｜AI 供應鏈'],['台積電 ADR','台積電美國掛牌股票｜海外評價'],['日經 225','日本股市｜亞洲市場氣氛'],['韓國 KOSPI','韓國股市'],['上櫃指數','台灣上櫃市場'],['台積電','台灣上市 2330'],['台指期日盤','臺股期貨日盤']];
 function renderBeginnerSummary(last,prev){const el=document.getElementById('beginner-summary');if(!el)return;el.replaceChildren();const title=document.createElement('b');title.textContent='一句話看懂今天台股';const p=document.createElement('p');p.className='small';if(!last||!prev){p.textContent='有效收盤資料不足，暫時無法判斷今天漲跌。';}else{const diff=last.close-prev.close;const pct=prev.close?Math.abs(diff/prev.close*100):0;const dir=diff>0?'上漲':diff<0?'下跌':'持平';p.textContent=`${last.date} 台股收盤${dir} ${Math.abs(diff).toLocaleString('zh-TW',{maximumFractionDigits:2})} 點（${pct.toFixed(2)}%）。${diff>0?'今天比前一交易日收得更高，但不代表明天一定上漲。':diff<0?'今天比前一交易日收得更低，但不代表明天一定下跌。':'今天與前一交易日收盤相同。'}`;}el.append(title,p);}
 function drawCloses(rows){const svg=document.getElementById('close-chart');if(rows.length<2)return;const values=rows.map(r=>r.close);let lo=Math.min(...values),hi=Math.max(...values);if(hi===lo){hi++;lo--}const x=i=>12+i*(576/(rows.length-1));const y=v=>146-(v-lo)/(hi-lo)*120;const path=rows.map((r,i)=>`${i?'L':'M'}${x(i).toFixed(1)} ${y(r.close).toFixed(1)}`).join(' ');const color=rows.length>1&&values.at(-1)>=values.at(-2)?'#c53939':'#15803d';const ns='http://www.w3.org/2000/svg';svg.replaceChildren();const line=document.createElementNS(ns,'path');line.setAttribute('d',path);line.setAttribute('fill','none');line.setAttribute('stroke',color);line.setAttribute('stroke-width','3.5');line.setAttribute('stroke-linecap','round');svg.append(line);for(const [pos,label] of [[0,rows[0].date],[rows.length-1,rows.at(-1).date]]){const t=document.createElementNS(ns,'text');t.setAttribute('x',String(x(pos)));t.setAttribute('text-anchor',pos===0?'start':'end');t.setAttribute('y','164');t.setAttribute('fill','#718096');t.setAttribute('font-size','12');t.textContent=label.slice(5);svg.append(t)}}
 function showClosingSummary(last,prev){
@@ -334,30 +335,53 @@ async function loadNightFutures(){
  return changed;
 }
 
+const marketNumber=new Intl.NumberFormat('zh-TW',{minimumFractionDigits:2,maximumFractionDigits:2});
+function renderMarketRows(rows,oldest){
+ const holder=document.getElementById('markets');
+ const quotes=new Map(rows.map(quote=>[quote.name,quote]));
+ holder.replaceChildren();
+ let count=0;
+ for(const [name,description] of marketNames){
+  const item=quotes.get(name);
+  const line=document.createElement('div');
+  line.className='market';
+  const label=document.createElement('div');
+  label.className='market-label';
+  const title=document.createElement('b');
+  title.textContent=name;
+  const date=document.createElement('small');
+  date.textContent=item?.date??'日期待確認';
+  if(item)date.setAttribute('aria-label',item.date+' 交易所當地日期');
+  const source=document.createElement('small');
+  const status=item?.stale||item&&item.date<oldest?'｜舊資料':
+   item&&item.session_complete!==true?'｜收盤待核對':'';
+  source.textContent=item?(item.source||'來源未標示')+status:description;
+  source.title=source.textContent;
+  label.append(title,date,source);
+  const quote=document.createElement('strong');
+  const direction=item?.change_pct>0?'red':item?.change_pct<0?'green':'muted';
+  quote.className='market-quote '+direction;
+  const price=document.createElement('span');
+  const change=document.createElement('span');
+  price.textContent=item?marketNumber.format(item.close):'—';
+  change.textContent=item?`(${item.change_pct>=0?'+':''}${marketNumber.format(item.change_pct)}%)`:'尚無報價';
+  quote.append(price,change);
+  line.append(label,quote);
+  holder.append(line);
+  if(item)count++;
+ }
+ return count;
+}
+
 async function loadGlobal(){
- const holder=document.getElementById('markets'),head=document.getElementById('global-head'),sub=document.getElementById('global-sub');
+ const head=document.getElementById('global-head'),sub=document.getElementById('global-sub');
  const isQuote=x=>x&&typeof x.name==='string'&&Number.isFinite(x.close)&&x.close>0&&
   /^\d{4}-\d{2}-\d{2}$/.test(x.date)&&x.date<=taipeiDate()&&Number.isFinite(x.change_pct);
  const {data,changed}=await marketFile('global.json',d=>Array.isArray(d.rows)&&d.rows.some(isQuote),
   d=>String(d.updated_at),d=>JSON.stringify(d.rows));
  const rows=data.rows.filter(isQuote);
  const oldest=previousWeekday(previousWeekday(taipeiDate()));
- let count=0;
- holder.replaceChildren();
- marketNames.forEach(([name,desc])=>{
-  const item=rows.find(x=>x.name===name);
-  const line=document.createElement('div');line.className='market';
-  const left=document.createElement('div'),b=document.createElement('b'),small=document.createElement('small');
-  b.textContent=name;
-  small.textContent=item?item.date+' 交易所當地日期｜'+(item.source||'來源未標示')+
-   (item.date<oldest||item.stale?'｜舊資料':item.session_complete!==true?'｜收盤待核對':''):desc;
-  left.append(b,small);
-  const right=document.createElement('b');
-  right.className=item&&item.change_pct>0?'red':item&&item.change_pct<0?'green':'muted';
-  right.textContent=item?item.close.toLocaleString('zh-TW',{maximumFractionDigits:2})+' ('+fmtPct(item.change_pct)+')':'尚無報價';
-  line.append(left,right);holder.append(line);
-  if(item)count++;
- });
+ const count=renderMarketRows(rows,oldest);
  lastGlobalQuotes=rows.filter(x=>x.session_complete===true&&!x.stale&&x.date>=oldest);
  head.textContent='市場行情 '+count+'/'+marketNames.length+' 項有報價';
  sub.textContent='後台每 30 分鐘檢查｜行情發布時間依各來源｜上次寫入 '+taipeiTime(data.updated_at);
@@ -548,6 +572,7 @@ function renderWeekly(rows){
  const note=document.createElement('p');note.className='small muted';note.textContent='五日卡片為同一基準情境隨時間衰減的推演，並非五次獨立預測。尚未納入台指期夜盤；國際行情日期可能延遲。日期依證交所開休市行事曆。';el.append(note);
 }
 
+renderMarketRows([],'');
 loadOfficial();
 document.getElementById('refresh-now').addEventListener('click',()=>loadOfficial(true));
 const AUTO_REFRESH_MS=5*60*1000;
