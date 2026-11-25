@@ -1,18 +1,18 @@
 {
   "direction": "偏空",
   "icon": "🌧️",
-  "reason": "NASDAQ -1.48%、費城半導體 -7.88%、NVIDIA -5.86%、台積電 ADR -3.96%；上一交易日收盤 38,195.43；台股近 5 日 -4.97%、近 10 日 -13.70%；臺指期日盤 -5.61%；當日夜盤日報尚缺",
+  "reason": "；上一交易日收盤 38,195.43；台股近 5 日 -4.97%、近 10 日 -13.70%；臺指期日盤 -5.61%；當日夜盤日報尚缺",
   "risk": "海外收盤與台股開盤存在時間差，突發消息及開盤後資金流可能改變方向。",
   "model_version": "projection-3",
   "flat_pct": 0.3,
   "base_date": "2026-11-25",
   "base_close": 38195.43,
-  "estimated_close": 36700.76,
-  "estimated_change": -1494.67,
+  "estimated_close": 36703.44,
+  "estimated_change": -1491.99,
   "estimated_change_pct": -3.91,
   "completeness": {
     "twse_sessions": 11,
-    "us_count": 4,
+    "us_count": 0,
     "us_target": 4,
     "day_futures_available": true,
     "overnight_available": false
@@ -79,56 +79,7 @@
         }
       ]
     },
-    "us": [
-      {
-        "name": "NASDAQ",
-        "symbol": "^IXIC",
-        "date": "2026-11-24",
-        "close": 23733.5391,
-        "change": -356.0215,
-        "change_pct": -1.48,
-        "exchange_timezone": "America/New_York",
-        "session_complete": true,
-        "source": "Yahoo Finance 延遲日線",
-        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EIXIC?range=10d&interval=1d"
-      },
-      {
-        "name": "費城半導體",
-        "symbol": "^SOX",
-        "date": "2026-11-24",
-        "close": 8832.5,
-        "change": -755.5498,
-        "change_pct": -7.88,
-        "exchange_timezone": "America/New_York",
-        "session_complete": true,
-        "source": "Yahoo Finance 延遲日線",
-        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5ESOX?range=10d&interval=1d"
-      },
-      {
-        "name": "NVIDIA",
-        "symbol": "NVDA",
-        "date": "2026-11-24",
-        "close": 155.38,
-        "change": -9.67,
-        "change_pct": -5.86,
-        "exchange_timezone": "America/New_York",
-        "session_complete": true,
-        "source": "Yahoo Finance 延遲日線",
-        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/NVDA?range=10d&interval=1d"
-      },
-      {
-        "name": "台積電 ADR",
-        "symbol": "TSM",
-        "date": "2026-11-24",
-        "close": 349.2,
-        "change": -14.4,
-        "change_pct": -3.96,
-        "exchange_timezone": "America/New_York",
-        "session_complete": true,
-        "source": "Yahoo Finance 延遲日線",
-        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/TSM?range=10d&interval=1d"
-      }
-    ],
+    "us": [],
     "day_futures": {
       "symbol": "TX",
       "contract": "202612",
@@ -150,5 +101,5 @@
   },
   "date": "2026-11-26",
   "status": "provisional",
-  "generated_at": "2026-11-25T18:55:31+08:00"
+  "generated_at": "2026-11-26T01:56:32+08:00"
 }

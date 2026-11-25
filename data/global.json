@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-25T18:55:04+08:00",
+  "updated_at": "2026-11-26T01:56:06+08:00",
   "note": "Delayed daily close; individual quote dates shown. Unavailable symbols retain prior verified date.",
   "rows": [
     {
@@ -135,5 +135,8 @@
       "source_url": "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&date=20261125&type=24"
     }
   ],
-  "source_errors": {}
+  "source_errors": {
+    "^N225": "更新失敗",
+    "^KS11": "更新失敗"
+  }
 }
