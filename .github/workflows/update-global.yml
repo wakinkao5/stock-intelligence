@@ -28,12 +28,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          slot=$(python -c 'from datetime import datetime,timedelta,timezone; n=datetime.now(timezone.utc)-timedelta(minutes=15); print((n-timedelta(minutes=(n.minute-7)%30,seconds=n.second,microseconds=n.microsecond)).isoformat())')
-          if gh api --method GET "repos/$GITHUB_REPOSITORY/actions/workflows/update-global.yml/runs" -f event=schedule -f created=">=$slot" -F per_page=20 --jq '.workflow_runs[] | select(.display_title=="Market refresh primary" and .conclusion=="success") | .id' > "$RUNNER_TEMP/primary-runs" && test -s "$RUNNER_TEMP/primary-runs"; then
-            echo 'skip=true' >> "$GITHUB_OUTPUT"
-            echo "Primary check for $slot succeeded: $(paste -sd, "$RUNNER_TEMP/primary-runs")" >> "$GITHUB_STEP_SUMMARY"
+          window=$(date --utc --date='25 hours ago' +%FT%TZ)
+          if gh api --method GET "repos/$GITHUB_REPOSITORY/actions/workflows/update-global.yml/runs" -f event=schedule -f created=">=$window" -F per_page=100 > "$RUNNER_TEMP/scheduled-runs.json"; then
+            python scripts/market_schedule_audit.py "$RUNNER_TEMP/scheduled-runs.json" "$RUNNER_TEMP/market-schedule-audit.json" || echo "Schedule audit unavailable. Continuing with a source retry." >> "$GITHUB_STEP_SUMMARY"
           else
-            echo "Retrying from sources because no successful primary run for $slot was found" >> "$GITHUB_STEP_SUMMARY"
+            echo "GitHub run records couldn't be read. Continuing with a source retry." >> "$GITHUB_STEP_SUMMARY"
           fi
       - name: Verify and commit latest available market data
         if: steps.guard.outputs.skip != 'true'
@@ -60,5 +59,12 @@ jobs:
         with:
           name: market-refresh-${{ github.run_id }}-${{ github.run_attempt }}
           path: ${{ runner.temp }}/market-report.json
+          if-no-files-found: warn
+          retention-days: 30
+      - uses: actions/upload-artifact@v4
+        if: always() && github.event.schedule == '22,52 * * * *'
+        with:
+          name: market-schedule-audit-${{ github.run_id }}
+          path: ${{ runner.temp }}/market-schedule-audit.json
           if-no-files-found: warn
           retention-days: 30
