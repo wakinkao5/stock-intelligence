@@ -117,6 +117,9 @@ def forecast_inputs(day, strict=True, as_of=None):
     us = [quotes[symbol] for symbol in US if symbol in quotes and quotes[symbol]["date"] == expected_us]
     if strict and len(us) != len(US):
         raise RuntimeError(f"Required completed US session {expected_us} unavailable for all four inputs")
+    regular = read("day-futures.json") if (DATA / "day-futures.json").exists() else {}
+    day_is_current = (regular.get("verified") is True and regular.get("trade_date") == previous.isoformat()
+                      and math.isfinite(regular["change_pct"]))
     night = read("night-futures.json")
     night_is_current = (night.get("verified") is True and night.get("trade_date") == day.isoformat()
                         and math.isfinite(night["change_pct"]))
@@ -128,6 +131,8 @@ def forecast_inputs(day, strict=True, as_of=None):
         us_signal = sum((r["change_pct"] > 0) - (r["change_pct"] < 0) for r in us) / len(us)
         weight = .65 * len(us) / len(US)
         score = weight * us_signal + (1 - weight) * technical
+    if day_is_current:
+        score = .90 * score + .10 * max(-1, min(1, regular["change_pct"] / 2))
     if night_is_current:
         score = .85 * score + .15 * max(-1, min(1, night["change_pct"] / 2))
     window = closes[-11:]
@@ -139,17 +144,20 @@ def forecast_inputs(day, strict=True, as_of=None):
     direction = "偏多" if change_pct > FLAT_PCT else "偏空" if change_pct < -FLAT_PCT else "震盪"
     reason = "、".join(f"{r['name']} {r['change_pct']:+.2f}%" for r in us)
     reason += f"；上一交易日收盤 {last['close']:,.2f}；台股近 5 日 {momentum[5]:+.2f}%、近 10 日 {momentum[10]:+.2f}%"
+    reason += f"；臺指期日盤 {regular['change_pct']:+.2f}%" if day_is_current else "；前一交易日日盤報表尚缺"
     reason += f"；臺指期夜盤 {night['change_pct']:+.2f}%" if night_is_current else "；當日夜盤日報尚缺"
     return {
         "direction": direction, "icon": ICONS[direction], "reason": reason,
         "risk": "海外收盤與台股開盤存在時間差，突發消息及開盤後資金流可能改變方向。",
-        "model_version": "projection-2", "flat_pct": FLAT_PCT,
+        "model_version": "projection-3", "flat_pct": FLAT_PCT,
         "base_date": last["date"], "base_close": last["close"], "estimated_close": estimate,
         "estimated_change": change, "estimated_change_pct": change_pct,
         "completeness": {"twse_sessions": len(window), "us_count": len(us),
-                         "us_target": len(US), "overnight_available": night_is_current},
+                         "us_target": len(US), "day_futures_available": day_is_current,
+                         "overnight_available": night_is_current},
         "inputs": {"twse": {"source": history["source"], "rows": closes[-11:]},
-                   "us": us, "night": night if night_is_current else None},
+                   "us": us, "day_futures": regular if day_is_current else None,
+                   "night": night if night_is_current else None},
     }
 
 

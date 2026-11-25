@@ -1,0 +1,17 @@
+{
+  "symbol": "TX",
+  "contract": "202612",
+  "trade_date": "2026-11-25",
+  "session_start": "2026-11-25T08:45:00+08:00",
+  "session_end": "2026-11-25T13:45:00+08:00",
+  "last": 38062,
+  "change": -2262,
+  "change_pct": -5.61,
+  "reference_settlement": 40324,
+  "verified": true,
+  "source": "TAIFEX",
+  "quote_type": "official_regular_daily_report",
+  "source_url": "https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=0&commodity_id=TX",
+  "settlement_source_url": "https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=0&commodity_id=TX&queryDate=2026%2F11%2F24",
+  "updated_at": "2026-11-25T15:23:03+08:00"
+}

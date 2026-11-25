@@ -3,11 +3,13 @@ import json
 import re
 import urllib.parse
 import urllib.request
-from datetime import datetime, time, timedelta
+from datetime import date, datetime, time, timedelta
 from decimal import Decimal
 from html.parser import HTMLParser
 from pathlib import Path
 from zoneinfo import ZoneInfo
+
+from market_cycle import is_session
 
 BASE = "https://www.taifex.com.tw/cht/3/futDailyMarketExcel"
 URL = BASE + "?marketCode=1"
@@ -96,19 +98,72 @@ def number(value):
     return result
 
 
+def expiry(contract):
+    first = date(int(contract[:4]), int(contract[4:]), 1)
+    last = first + timedelta(days=(2 - first.weekday()) % 7 + 14)
+    while not is_session(last):
+        last += timedelta(days=1)
+    return last
+
+
+def latest_contract(rows, session_day, night):
+    # The expiring TX stops at 13:30. Its later night session uses the next contract.
+    minimum = session_day + timedelta(days=int(night))
+    return next(contract for contract in sorted(rows) if expiry(contract) >= minimum)
+
+
+def regular_url(day=None):
+    params = {"marketCode": "0", "commodity_id": "TX"}
+    if day is not None:
+        params["queryDate"] = day.strftime("%Y/%m/%d")
+    return BASE + "?" + urllib.parse.urlencode(params)
+
+
+def build_regular_report(html, fetch_regular, now):
+    trade_day, session_day, rows = parse_report(html, night=False)
+    if trade_day != session_day or not is_session(trade_day):
+        raise ValueError("TAIFEX regular report dates do not match a trading day")
+    contract = latest_contract(rows, session_day, night=False)
+    end = datetime.combine(session_day, time(13, 30) if expiry(contract) == session_day else time(13, 45), TAIPEI)
+    if end > now:
+        raise ValueError("TAIFEX regular session is not complete")
+    prior = trade_day - timedelta(days=1)
+    while not is_session(prior):
+        prior -= timedelta(days=1)
+    reference_url = regular_url(prior)
+    ref_date, ref_session, prior_rows = parse_report(fetch_regular(reference_url), night=False)
+    if ref_date != prior or ref_session != prior:
+        raise ValueError("TAIFEX prior regular settlement report date mismatch")
+    row = rows[contract]
+    last, change, pct = (number(row[key]) for key in ("最後成交價", "漲跌價", "漲跌%"))
+    # Contract listing dates and rolls can make the prior settlement unpublished.
+    # Require the exchange's own point change and reconcile to the same contract whenever published.
+    reference = last - change
+    prior_row = prior_rows.get(contract)
+    if prior_row and number(prior_row["結算價"]) != reference:
+        raise ValueError("TAIFEX regular point change does not match same-contract settlement")
+    if not (reference > 0 and 0 < number(row["最低價"]) <= last <= number(row["最高價"])
+            and number(row["*一般交易時段成交量"]) > 0
+            and abs(pct - 100 * change / reference) <= Decimal("0.005")):
+        raise ValueError("TAIFEX regular price or percentage failed verification")
+    return {"symbol": "TX", "contract": contract, "trade_date": trade_day.isoformat(),
+            "session_start": datetime.combine(session_day, time(8, 45), TAIPEI).isoformat(),
+            "session_end": end.isoformat(), "last": int(last), "change": int(change),
+            "change_pct": float(pct), "reference_settlement": int(reference), "verified": True,
+            "source": "TAIFEX", "quote_type": "official_regular_daily_report",
+            "source_url": regular_url(), "settlement_source_url": reference_url}
+
+
 def build_report(night_html, fetch_regular, now):
     trade_day, session_day, rows = parse_report(night_html, night=True)
     session_end = datetime.combine(session_day + timedelta(days=1), time(5), TAIPEI)
-    if not (session_end <= now and session_day < trade_day <= now.date() and trade_day.weekday() < 5
-            and session_day.weekday() < 5 and now.date() - trade_day <= timedelta(days=14)):
+    if not (session_end <= now and session_day < trade_day and is_session(trade_day)
+            and is_session(session_day) and trade_day - session_day <= timedelta(days=14)):
         raise ValueError("Invalid TAIFEX night session dates")
-    month = trade_day.strftime("%Y%m")
-    contract = min(key for key in rows if key >= month)
+    contract = latest_contract(rows, session_day, night=True)
     row = rows[contract]
-    regular_url = BASE + "?" + urllib.parse.urlencode({
-        "marketCode": "0", "commodity_id": "TX", "queryDate": session_day.strftime("%Y/%m/%d")
-    })
-    regular_date, regular_session, regular_rows = parse_report(fetch_regular(regular_url), night=False)
+    reference_url = regular_url(session_day)
+    regular_date, regular_session, regular_rows = parse_report(fetch_regular(reference_url), night=False)
     if regular_date != session_day or regular_session != session_day:
         raise ValueError("Settlement report date does not match the night-session start")
     settlement = number(regular_rows[contract]["結算價"])
@@ -127,23 +182,34 @@ def build_report(night_html, fetch_regular, now):
         "last": int(last), "change": int(change), "change_pct": float(pct),
         "reference_settlement": int(settlement), "verified": True,
         "source": "TAIFEX", "quote_type": "official_after_hours_daily_report",
-        "source_url": URL, "settlement_source_url": regular_url,
+        "source_url": URL, "settlement_source_url": reference_url,
     }
 
 
-def main():
-    now = datetime.now(TAIPEI)
-    result = build_report(fetch(URL), fetch, now)
-    if TARGET.exists():
-        previous = json.loads(TARGET.read_text(encoding="utf-8"))
+def persist_report(path, result, now):
+    if path.exists():
+        previous = json.loads(path.read_text(encoding="utf-8"))
         if previous.get("verified") and previous["session_end"] > result["session_end"]:
-            raise ValueError("Existing verified night report is newer")
+            raise ValueError("Existing verified report is newer")
         if all(previous.get(key) == value for key, value in result.items()):
-            print("Official TX report unchanged")
-            return
-    result["updated_at"] = datetime.now(TAIPEI).isoformat(timespec="seconds")
-    TARGET.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print("Verified official TX report:", result)
+            return False
+    result["updated_at"] = now.isoformat(timespec="seconds")
+    tmp = path.with_suffix(".tmp")
+    tmp.write_text(json.dumps(result, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    tmp.replace(path)
+    return True
+
+
+def refresh_report(path, night):
+    now = datetime.now(TAIPEI)
+    build = build_report if night else build_regular_report
+    result = build(fetch(URL if night else regular_url()), fetch, now)
+    changed = persist_report(path, result, datetime.now(TAIPEI))
+    return {"status": "updated" if changed else "unchanged", "quote_date": result["trade_date"]}
+
+
+def main():
+    print("Verified TAIFEX night report:", refresh_report(TARGET, night=True))
 
 
 if __name__ == "__main__":

@@ -128,21 +128,6 @@ def otc(now):
             "source": "櫃買中心正式收盤", "source_url": TPEX}
 
 
-def regular_tx(now):
-    url = futures.BASE + "?marketCode=0&commodity_id=TX"
-    day, session, rows = futures.parse_report(futures.fetch(url), night=False)
-    if day != session or day > now.date() or (day == now.date() and now.time() < dt.time(13, 45)):
-        raise ValueError("TAIFEX regular report not yet complete")
-    contract = min(key for key in rows if key >= day.strftime("%Y%m"))
-    item = rows[contract]
-    last, pct = futures.number(item["最後成交價"]), futures.number(item["漲跌%"])
-    if last <= 0 or futures.number(item["*一般交易時段成交量"]) <= 0:
-        raise ValueError("No valid regular TX trades")
-    return {"name": "台指期日盤", "symbol": "TX-DAY", "date": day.isoformat(), "close": float(last),
-            "change_pct": float(pct), "contract": contract, "session_complete": True,
-            "exchange_timezone": TAIPEI.key, "source": "期交所日盤報表", "source_url": url}
-
-
 def store_quotes(book, updates, now):
     previous = {row["symbol"]: row for row in book["rows"]}
     results = {}
@@ -173,21 +158,13 @@ def taiwan_close(now):
     return result
 
 
-def night_report(now):
-    old = market_cycle.read("night-futures.json")
-    trade_date = dt.date.fromisoformat(old["trade_date"])
-    expected = now.date()
-    if now.time() < dt.time(5):
-        expected -= dt.timedelta(days=1)
-    while not market_cycle.is_session(expected):
-        expected -= dt.timedelta(days=1)
-    if trade_date >= expected:
-        return {"status": "unchanged", "quote_date": old["trade_date"]}
-    result = run_if_needed(futures.main, ("night-futures.json",))
-    latest = market_cycle.read("night-futures.json")["trade_date"]
-    if latest < expected.isoformat():
-        return {"status": "pending", "quote_date": latest}
-    return {**result, "quote_date": latest}
+def keep_futures_status(results):
+    labels = {"day": "TX-DAY", "night": "TX-NIGHT"}
+    status = {session: result.get("detail") if result.get("status") == "error" else None
+              for session, key in labels.items() if (result := results.get(key))}
+    file = DATA / "futures-status.json"
+    if not file.exists() or market_cycle.read(file.name) != status:
+        market_cycle.write(file.name, status)
 
 
 def outcome(task):
@@ -205,9 +182,9 @@ def main():
         jobs = {symbol: pool.submit(fetch_global, name, symbol, zone, close_at, now, previous.get(symbol, {}))
                 for name, symbol, zone, close_at in SYMBOLS}
         jobs["TPEX"] = pool.submit(otc, now)
-        jobs["TX-DAY"] = pool.submit(regular_tx, now)
+        regular_job = pool.submit(futures.refresh_report, DATA / "day-futures.json", False)
         close_job = pool.submit(taiwan_close, now)
-        night_job = pool.submit(night_report, now)
+        night_job = pool.submit(futures.refresh_report, DATA / "night-futures.json", True)
         result_close = outcome(close_job)
         published_day = market_cycle.read("taiex.json")["rows"][-1]["date"]
         for symbol in STOCKS:
@@ -218,8 +195,10 @@ def main():
         for symbol in STOCKS.keys() - jobs.keys():
             results[symbol] = {"status": "unchanged", "quote_date": published_day}
         result_night = outcome(night_job)
-    for symbol, result in (("TAIEX", result_close), ("TX-NIGHT", result_night)):
+        result_regular = outcome(regular_job)
+    for symbol, result in (("TAIEX", result_close), ("TX-DAY", result_regular), ("TX-NIGHT", result_night)):
         results[symbol] = {"status": "error", "detail": str(result)} if isinstance(result, Exception) else result
+    keep_futures_status(results)
     for label, update in (("TWSE-CALENDAR", market_cycle.refresh_calendar),
                           ("TWSE-OUTLOOK", lambda: market_cycle.publish_outlook(dt.datetime.now(TAIPEI)))):
         try:
