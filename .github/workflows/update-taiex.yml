@@ -9,6 +9,8 @@ on:
   schedule:
     - cron: '40 0 * * 1-5' # 08:40 Asia/Taipei
     - cron: '42 0 * * 1-5' # retry before cutoff
+    - cron: '45 0 * * 1-5' # 08:45 Taipei: independent lock
+    - cron: '48 0 * * 1-5' # publish valid pre-cutoff snapshot if first lock was delayed
     - cron: '30,37,52 5 * * 1-5'
     - cron: '07,37 6,7 * * 1-5'
     - cron: '45 8 * * 1-5'
@@ -25,7 +27,8 @@ jobs:
           SCHEDULE: ${{ github.event.schedule }}
         run: |
           case "$SCHEDULE" in
-            '40 0 '*|'42 0 '*) mode=morning ;;
+            '40 0 '*|'42 0 '*) mode=capture ;;
+            '45 0 '*|'48 0 '*) mode=lock ;;
             *) mode=close ;;
           esac
           git config user.name 'github-actions[bot]'
@@ -34,11 +37,11 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
             python scripts/market_cycle.py "$mode" || exit 1
-            git add data/taiex.json data/predictions.json data/verification.json
+            git add -A data
             if git diff --cached --quiet; then exit 0; fi
             git commit -m "Record TWSE market cycle ($mode)"
             if git push origin HEAD:main; then exit 0; fi
-            if [ "$mode" = morning ]; then
+            if [ "$mode" != close ]; then
               if git pull --rebase origin main && git push origin HEAD:main; then exit 0; fi
               exit 1
             fi

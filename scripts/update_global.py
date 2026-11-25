@@ -220,6 +220,13 @@ def main():
         result_night = outcome(night_job)
     for symbol, result in (("TAIEX", result_close), ("TX-NIGHT", result_night)):
         results[symbol] = {"status": "error", "detail": str(result)} if isinstance(result, Exception) else result
+    for label, update in (("TWSE-CALENDAR", market_cycle.refresh_calendar),
+                          ("TWSE-OUTLOOK", lambda: market_cycle.publish_outlook(dt.datetime.now(TAIPEI)))):
+        try:
+            update()
+            results[label] = {"status": "checked"}
+        except (OSError, RuntimeError, ValueError, KeyError) as error:
+            results[label] = {"status": "error", "detail": str(error)}
     report = {"checked_at": now.isoformat(timespec="seconds"), "finished_at": dt.datetime.now(TAIPEI).isoformat(timespec="seconds"),
               "event": os.environ.get("GITHUB_EVENT_NAME"), "schedule": os.environ.get("SCHEDULE"), "markets": results}
     content = json.dumps(report, ensure_ascii=False, indent=2)

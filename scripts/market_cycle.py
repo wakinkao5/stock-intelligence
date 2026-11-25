@@ -5,7 +5,6 @@ import math
 import os
 import subprocess
 import sys
-import time
 import urllib.request
 from datetime import datetime, time as clock, timedelta
 from decimal import Decimal
@@ -49,17 +48,43 @@ def roc_date(value):
     return datetime(int(value[:3]) + 1911, int(value[3:5]), int(value[5:])).date().isoformat()
 
 
+def refresh_calendar():
+    calendar = read("twse-calendar.json")
+    closed = calendar["closed"]
+    rows = fetch(CALENDAR_SOURCE)
+    years = {roc_date(row["Date"])[:4] for row in rows}
+    if len(years) != 1:
+        raise RuntimeError("Unexpected TWSE calendar years")
+    year = years.pop()
+    dates = sorted({roc_date(row["Date"]) for row in rows if
+                    not any(word in row["Name"] for word in ("開始交易", "最後交易"))})
+    if closed.get(year) != dates:
+        closed[year] = dates
+        calendar["updated_at"] = datetime.now(TZ).isoformat(timespec="seconds")
+        write("twse-calendar.json", calendar)
+
+
 def is_session(day):
     if day.weekday() >= 5:
         return False
-    if day.year == 2026 and day.isoformat() >= "2026-11-24":
-        # TWSE 115 年市場開休市日期, remaining dates after deployment.
-        return day.isoformat() != "2026-12-25"
-    rows = fetch(CALENDAR_SOURCE)
-    if not rows or {roc_date(row["Date"])[:4] for row in rows} != {str(day.year)}:
+    year = str(day.year)
+    closed = read("twse-calendar.json")["closed"]
+    if year not in closed:
         raise RuntimeError("TWSE calendar unavailable for this year")
-    return not any(roc_date(row["Date"]) == day.isoformat() and
-                   not any(word in row["Name"] for word in ("開始交易", "最後交易")) for row in rows)
+    return day.isoformat() not in closed[year]
+
+
+def adjacent_session(day, step):
+    while True:
+        day += timedelta(days=step)
+        if is_session(day):
+            return day
+
+
+def forecast_day(now):
+    if is_session(now.date()) and now.time() < clock(13, 30):
+        return now.date()
+    return adjacent_session(now.date(), 1)
 
 
 # Exchange holidays for the supported calendar years.
@@ -77,44 +102,94 @@ def previous_us_session(day):
     return previous.isoformat()
 
 
-def forecast_inputs(day):
+def forecast_inputs(day, strict=True, as_of=None):
     history = read("taiex.json")
     closes = [r for r in history["rows"] if r["date"] < day.isoformat()]
     if not history["verified"] or len(closes) < 11:
-        raise RuntimeError("TWSE history insufficient")
-    previous = day - timedelta(days=1)
-    while not is_session(previous):
-        previous -= timedelta(days=1)
+        raise RuntimeError("缺少足夠的證交所收盤歷史（至少 11 筆）")
+    previous = adjacent_session(day, -1)
     if closes[-1]["date"] != previous.isoformat():
-        raise RuntimeError("Previous TWSE session is missing")
+        raise RuntimeError(f"缺少 {previous} 證交所正式收盤")
     global_data = read("global.json")
     quotes = {r["symbol"]: r for r in global_data["rows"]
               if r.get("session_complete") and not r.get("stale") and math.isfinite(r["change_pct"])}
-    us = [quotes[symbol] for symbol in US if symbol in quotes]
-    expected_us = previous_us_session(day)
-    if len(us) != len(US) or any(quote["date"] != expected_us for quote in us):
+    expected_us = previous_us_session((as_of.date() if as_of else day))
+    us = [quotes[symbol] for symbol in US if symbol in quotes and quotes[symbol]["date"] == expected_us]
+    if strict and len(us) != len(US):
         raise RuntimeError(f"Required completed US session {expected_us} unavailable for all four inputs")
     night = read("night-futures.json")
     night_is_current = (night.get("verified") is True and night.get("trade_date") == day.isoformat()
                         and math.isfinite(night["change_pct"]))
     last = closes[-1]
     momentum = {n: (last["close"] / closes[-1 - n]["close"] - 1) * 100 for n in (5, 10)}
-    us_signal = sum((r["change_pct"] > 0) - (r["change_pct"] < 0) for r in us) / len(us)
     technical = .6 * max(-1, min(1, momentum[5] / 5)) + .4 * max(-1, min(1, momentum[10] / 8))
-    score = .65 * us_signal + .35 * technical
+    score = technical
+    if us:
+        us_signal = sum((r["change_pct"] > 0) - (r["change_pct"] < 0) for r in us) / len(us)
+        weight = .65 * len(us) / len(US)
+        score = weight * us_signal + (1 - weight) * technical
     if night_is_current:
         score = .85 * score + .15 * max(-1, min(1, night["change_pct"] / 2))
-    direction = "偏多" if score > .18 else "偏空" if score < -.18 else "震盪"
+    window = closes[-11:]
+    typical_pct = sum(abs(current["close"] / prior["close"] - 1) * 100
+                      for prior, current in zip(window, window[1:])) / 10
+    estimate = round(last["close"] * (1 + score * typical_pct / 100), 2)
+    change = round(estimate - last["close"], 2)
+    change_pct = round(100 * change / last["close"], 2)
+    direction = "偏多" if change_pct > FLAT_PCT else "偏空" if change_pct < -FLAT_PCT else "震盪"
     reason = "、".join(f"{r['name']} {r['change_pct']:+.2f}%" for r in us)
-    reason += f"；台股近 5 日 {momentum[5]:+.2f}%、近 10 日 {momentum[10]:+.2f}%"
+    reason += f"；上一交易日收盤 {last['close']:,.2f}；台股近 5 日 {momentum[5]:+.2f}%、近 10 日 {momentum[10]:+.2f}%"
     reason += f"；臺指期夜盤 {night['change_pct']:+.2f}%" if night_is_current else "；當日夜盤日報尚缺"
     return {
         "direction": direction, "icon": ICONS[direction], "reason": reason,
         "risk": "海外收盤與台股開盤存在時間差，突發消息及開盤後資金流可能改變方向。",
-        "model_version": "direction-1", "flat_pct": FLAT_PCT,
+        "model_version": "projection-2", "flat_pct": FLAT_PCT,
+        "base_date": last["date"], "base_close": last["close"], "estimated_close": estimate,
+        "estimated_change": change, "estimated_change_pct": change_pct,
+        "completeness": {"twse_sessions": len(window), "us_count": len(us),
+                         "us_target": len(US), "overnight_available": night_is_current},
         "inputs": {"twse": {"source": history["source"], "rows": closes[-11:]},
                    "us": us, "night": night if night_is_current else None},
     }
+
+
+def publish_outlook(now):
+    day = forecast_day(now)
+    official = read("predictions.json")["rows"]
+    if any(row["date"] == day.isoformat() for row in official):
+        return
+    try:
+        outlook = forecast_inputs(day, strict=False, as_of=now)
+    except RuntimeError as error:
+        outlook = {"missing": str(error)}
+    outlook.update(date=day.isoformat(), status="provisional")
+    path = DATA / "outlook.json"
+    if path.exists():
+        old = read("outlook.json")
+        if outlook == {key: value for key, value in old.items() if key != "generated_at"}:
+            return
+    outlook["generated_at"] = datetime.now(TZ).isoformat(timespec="seconds")
+    write("outlook.json", outlook)
+
+
+def capture_forecast(now):
+    day = now.date()
+    cutoff = datetime.combine(day, LOCK, TZ)
+    if not is_session(day):
+        return
+    if not clock(8, 40) <= now.time() < LOCK:
+        raise RuntimeError("Morning run missed pre-08:45 capture window")
+    if any(row["date"] == day.isoformat() for row in read("predictions.json")["rows"]):
+        return
+    source_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    draft = forecast_inputs(day)
+    captured = datetime.now(TZ)
+    if not now <= captured < cutoff:
+        raise RuntimeError("Inputs were not verified before 08:45")
+    write("forecast-snapshot.json", {**draft, "date": day.isoformat(), "captured_at": captured.isoformat(),
+                                     "cutoff_at": cutoff.isoformat(), "source_commit": source_commit,
+                                     "capture_run_id": os.getenv("GITHUB_RUN_ID")})
+    print("Forecast inputs captured", captured.isoformat())
 
 
 def lock_forecast(now):
@@ -126,24 +201,23 @@ def lock_forecast(now):
     if any(r["date"] == day.isoformat() for r in book["rows"]):
         print("Existing record retained")
         return
-    if not clock(8, 40) <= now.time() < LOCK:
-        raise RuntimeError("Morning run missed pre-08:45 capture window")
-    source_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
-    forecast = forecast_inputs(day)
-    captured = datetime.now(TZ)
-    if not now <= captured < cutoff:
-        raise RuntimeError("Inputs were not verified before 08:45")
-    time.sleep(max(0, (cutoff - datetime.now(TZ)).total_seconds()))
+    if not cutoff <= now < datetime.combine(day, clock(9), TZ):
+        raise RuntimeError("Scheduled lock must execute between 08:45 and market open")
+    if not (DATA / "forecast-snapshot.json").exists():
+        raise RuntimeError("No saved pre-08:45 forecast snapshot")
+    draft = read("forecast-snapshot.json")
+    captured = datetime.fromisoformat(draft["captured_at"])
+    if (draft["date"] != day.isoformat() or datetime.fromisoformat(draft["cutoff_at"]) != cutoff
+            or not cutoff - timedelta(minutes=5) <= captured < cutoff):
+        raise RuntimeError("Saved forecast snapshot is outside today's pre-cutoff window")
     locked = datetime.now(TZ)
     if not cutoff <= locked < datetime.combine(day, clock(9), TZ):
         raise RuntimeError("Could not lock before market open")
-    forecast.update(date=day.isoformat(), time="08:45", status="locked",
-                    captured_at=captured.isoformat(), cutoff_at=cutoff.isoformat(),
-                    locked_at=locked.isoformat(), on_time=locked < cutoff + timedelta(minutes=1),
-                    run_id=os.getenv("GITHUB_RUN_ID"), source_commit=source_commit)
+    forecast = {**draft, "time": "08:45", "status": "locked", "locked_at": locked.isoformat(),
+                "on_time": locked < cutoff + timedelta(minutes=1), "run_id": os.getenv("GITHUB_RUN_ID")}
     book["rows"].append(forecast)
     write("predictions.json", book)
-    print("Lock recorded", forecast["locked_at"], "from", forecast["captured_at"])
+    print("Lock recorded", forecast["locked_at"], "from", draft["captured_at"])
 
 
 def verify(close, previous, prediction):
@@ -247,4 +321,4 @@ def publish_close(now):
 
 
 if __name__ == "__main__":
-    {"morning": lock_forecast, "close": publish_close}[sys.argv[1]](datetime.now(TZ))
+    {"capture": capture_forecast, "lock": lock_forecast, "close": publish_close, "outlook": publish_outlook}[sys.argv[1]](datetime.now(TZ))

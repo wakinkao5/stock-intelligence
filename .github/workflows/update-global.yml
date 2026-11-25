@@ -47,7 +47,7 @@ jobs:
             git reset --hard origin/main
             result=0
             python scripts/update_global.py || result=$?
-            git add data/global.json data/taiex.json data/night-futures.json data/verification.json
+            git add -A data
             if git diff --cached --quiet; then exit "$result"; fi
             git commit -m 'Update verified market quotes'
             if git push origin HEAD:main; then exit "$result"; fi
