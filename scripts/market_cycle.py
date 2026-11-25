@@ -17,6 +17,7 @@ from update_twse import fetch_month
 DATA = Path(__file__).resolve().parents[1] / "data"
 TZ = ZoneInfo("Asia/Taipei")
 CLOSE_SOURCE = "https://openapi.twse.com.tw/v1/exchangeReport/FMTQIK"
+DAILY_SOURCE = "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX"
 CALENDAR_SOURCE = "https://openapi.twse.com.tw/v1/holidaySchedule/holidaySchedule"
 START = "2026-11-25"
 LOCK = clock(8, 45)
@@ -134,7 +135,7 @@ def lock_forecast(now):
 def verify(close, previous, prediction):
     change = (Decimal(str(close["close"])) - Decimal(str(previous["close"]))) * 100 / Decimal(str(previous["close"]))
     outcome = {"date": close["date"], "close": close["close"], "previous": previous,
-               "change_pct": float(change), "source": CLOSE_SOURCE, "status": "unlocked"}
+               "change_pct": float(change), "source": close.get("source", CLOSE_SOURCE), "status": "unlocked"}
     if not prediction:
         return outcome
     captured, cutoff, locked = (datetime.fromisoformat(prediction[k])
@@ -167,27 +168,50 @@ def stats(rows):
             "overall": accuracy(valid), "last5": accuracy(valid[-5:]), "last20": accuracy(valid[-20:])}
 
 
+def daily_close(day):
+    ymd = day.replace("-", "")
+    url = f"{DAILY_SOURCE}?response=json&date={ymd}&type=IND"
+    report = fetch(url)
+    if report.get("stat") != "OK" or report.get("date") != ymd:
+        raise ValueError("Daily TWSE report hasn't published the requested date")
+    for table in report.get("tables", []):
+        if not table.get("title", "").endswith("價格指數(臺灣證券交易所)"):
+            continue
+        fields = table["fields"]
+        for row in table["data"]:
+            if row[fields.index("指數")] == "發行量加權股價指數":
+                close = float(row[fields.index("收盤指數")].replace(",", ""))
+                if math.isfinite(close) and close > 0:
+                    return {"date": day, "close": close, "source": url}
+    raise ValueError("Daily TWSE report has no valid TAIEX close")
+
+
 def publish_close(now):
     day = now.date().isoformat()
     if now.time() < clock(13, 30) or not is_session(now.date()):
         return
     history = read("taiex.json")
     official = {r["date"]: r for r in history["rows"]}
-    if day not in official:
+    current = official.get(day)
+    if current is None:
         try:
-            report = fetch(CLOSE_SOURCE)
-            rows = [{"date": roc_date(r["Date"]), "close": float(r["TAIEX"]), "trade_value": int(r["TradeValue"])}
-                    for r in report]
-        except (OSError, ValueError, KeyError) as error:
-            print("OpenAPI unavailable:", error)
-            rows = []
-        if not any(r["date"] == day for r in rows):
-            rows = fetch_month(day[:7])
-        if not any(r["date"] == day and math.isfinite(r["close"]) and r["close"] > 0 and r["trade_value"] > 0 for r in rows):
-            raise RuntimeError("Today's official TWSE close is still pending")
-        for r in rows:
-            if r["date"] <= day and math.isfinite(r["close"]) and r["close"] > 0 and r["trade_value"] > 0:
-                official.setdefault(r["date"], r)
+            current = daily_close(day)
+        except (OSError, ValueError, KeyError, TypeError, IndexError) as error:
+            print("MI_INDEX unavailable:", error)
+    if current is None or current.get("trade_value") is None:
+        try:
+            monthly = next((r for r in fetch_month(day[:7]) if r["date"] == day), None)
+        except (OSError, RuntimeError, ValueError) as error:
+            print("FMTQIK unavailable:", error)
+            monthly = None
+        if monthly is not None:
+            if current is not None and monthly["close"] != current["close"]:
+                raise RuntimeError("TWSE daily and monthly closes disagree")
+            current = {**monthly, **(current or {})}
+    if current is None:
+        raise RuntimeError("Today's official TWSE close is still pending")
+    if official.get(day) != current:
+        official[day] = current
         history.update(updated_at=datetime.now(TZ).isoformat(timespec="seconds"),
                        rows=[official[key] for key in sorted(official)])
         write("taiex.json", history)
