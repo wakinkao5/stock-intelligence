@@ -9,6 +9,7 @@ from urllib.parse import quote
 
 import market_cycle
 import update_night_futures as futures
+import update_market_news
 
 DATA = market_cycle.DATA
 TAIPEI = market_cycle.TZ
@@ -60,7 +61,7 @@ def fetch_global(name, symbol, zone, close_at, now, previous):
             timezone = market_cycle.ZoneInfo(zone)
             (_, prior), (day, close) = completed_bars(series, symbol, timezone, close_at, now)
             item = {"name": name, "symbol": symbol, "date": day.isoformat(), "close": round(close, 4),
-                    "change_pct": round(100 * (close / prior - 1), 2), "exchange_timezone": zone,
+                    "change": round(close - prior, 4), "change_pct": round(100 * (close / prior - 1), 2), "exchange_timezone": zone,
                     "session_complete": True, "source": "Yahoo Finance 延遲日線", "source_url": url}
             candidates.append(item)
             previous_date = previous.get("date", "")
@@ -108,7 +109,7 @@ def taiwan_stocks(day):
             if close <= 0 or close - change <= 0:
                 raise ValueError("Invalid TWSE stock close")
             yield {"name": STOCKS[symbol], "symbol": symbol, "date": day, "close": float(close),
-                   "change_pct": float(round(100 * change / (close - change), 2)),
+                   "change": float(change), "change_pct": float(round(100 * change / (close - change), 2)),
                    "session_complete": True, "exchange_timezone": TAIPEI.key,
                    "source": "證交所正式收盤", "source_url": url}
 
@@ -123,7 +124,7 @@ def otc(now):
     if close <= 0 or close - change <= 0:
         raise ValueError("Invalid OTC index close")
     return {"name": "上櫃指數", "symbol": "TPEX", "date": day.isoformat(), "close": float(close),
-            "change_pct": float(round(100 * change / (close - change), 2)),
+            "change": float(change), "change_pct": float(round(100 * change / (close - change), 2)),
             "session_complete": True, "exchange_timezone": TAIPEI.key,
             "source": "櫃買中心正式收盤", "source_url": TPEX}
 
@@ -141,8 +142,10 @@ def store_quotes(book, updates, now):
             previous[symbol] = item
             results[symbol] = {"status": "unchanged" if old == item else "updated", "quote_date": item["date"]}
     rows = list(previous.values())
-    if book["rows"] != rows:
-        market_cycle.write("global.json", {**book, "updated_at": now.isoformat(timespec="seconds"), "rows": rows})
+    errors = {symbol: "更新失敗" for symbol, result in results.items() if result["status"] == "error"}
+    if book["rows"] != rows or book.get("source_errors", {}) != errors:
+        market_cycle.write("global.json", {**book, "updated_at": now.isoformat(timespec="seconds"),
+                                           "rows": rows, "source_errors": errors})
     return results
 
 
@@ -182,13 +185,14 @@ def main():
         jobs = {symbol: pool.submit(fetch_global, name, symbol, zone, close_at, now, previous.get(symbol, {}))
                 for name, symbol, zone, close_at in SYMBOLS}
         jobs["TPEX"] = pool.submit(otc, now)
+        news_job = pool.submit(update_market_news.refresh)
         regular_job = pool.submit(futures.refresh_report, DATA / "day-futures.json", False)
         close_job = pool.submit(taiwan_close, now)
         night_job = pool.submit(futures.refresh_report, DATA / "night-futures.json", True)
         result_close = outcome(close_job)
         published_day = market_cycle.read("taiex.json")["rows"][-1]["date"]
         for symbol in STOCKS:
-            if previous.get(symbol, {}).get("date") != published_day:
+            if previous.get(symbol, {}).get("date") != published_day or "change" not in previous.get(symbol, {}):
                 jobs[symbol] = pool.submit(lambda symbol=symbol: next(r for r in taiwan_stocks(published_day)
                                                                         if r["symbol"] == symbol))
         results = store_quotes(book, {symbol: outcome(task) for symbol, task in jobs.items()}, now)
@@ -196,6 +200,9 @@ def main():
             results[symbol] = {"status": "unchanged", "quote_date": published_day}
         result_night = outcome(night_job)
         result_regular = outcome(regular_job)
+        result_news = outcome(news_job)
+        if isinstance(result_news, Exception):
+            print("Federal Reserve news refresh unavailable:", result_news)
     for symbol, result in (("TAIEX", result_close), ("TX-DAY", result_regular), ("TX-NIGHT", result_night)):
         results[symbol] = {"status": "error", "detail": str(result)} if isinstance(result, Exception) else result
     keep_futures_status(results)

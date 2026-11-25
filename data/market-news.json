@@ -1,0 +1,15 @@
+{
+  "source": "https://www.federalreserve.gov/feeds/press_monetary.xml",
+  "items": [
+    {
+      "title": "Minutes of the Board's discount rate meetings on October 19 and October 28, 2026",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261124a.htm",
+      "published_at": "2026-11-24T19:00:00+00:00"
+    },
+    {
+      "title": "Minutes of the Federal Open Market Committee, October 27-28, 2026",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261118a.htm",
+      "published_at": "2026-11-18T19:00:00+00:00"
+    }
+  ]
+}
