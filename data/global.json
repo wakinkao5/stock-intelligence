@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-26T14:11:21+08:00",
+  "updated_at": "2026-11-26T18:16:10+08:00",
   "note": "Delayed daily close; individual quote dates shown. Unavailable symbols retain prior verified date.",
   "rows": [
     {
@@ -53,10 +53,10 @@
     {
       "name": "日經 225",
       "symbol": "^N225",
-      "date": "2026-11-25",
-      "close": 57011.6211,
-      "change": -1633.0078,
-      "change_pct": -2.78,
+      "date": "2026-11-26",
+      "close": 57499.1602,
+      "change": 487.5391,
+      "change_pct": 0.86,
       "exchange_timezone": "Asia/Tokyo",
       "session_complete": true,
       "source": "Yahoo Finance 延遲日線",
@@ -90,9 +90,9 @@
       "name": "韓國 KOSPI",
       "symbol": "^KS11",
       "date": "2026-11-26",
-      "close": 4752.8599,
-      "change": 55.3501,
-      "change_pct": 1.18,
+      "close": 4711.21,
+      "change": 13.7002,
+      "change_pct": 0.29,
       "exchange_timezone": "Asia/Seoul",
       "session_complete": true,
       "source": "Yahoo Finance 延遲日線",

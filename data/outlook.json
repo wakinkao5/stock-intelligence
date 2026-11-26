@@ -1,24 +1,24 @@
 {
   "direction": "偏空",
   "icon": "🌧️",
-  "reason": "NASDAQ -0.62%、費城半導體 -0.65%、NVIDIA -3.91%、台積電 ADR -1.96%；上一交易日收盤 39,151.81；台股近 5 日 +1.89%、近 10 日 -9.14%；前一交易日日盤報表尚缺；當日夜盤日報尚缺",
+  "reason": "NASDAQ -0.62%、費城半導體 -0.65%、NVIDIA -3.91%、台積電 ADR -1.96%；上一交易日收盤 39,151.81；台股近 5 日 +1.89%、近 10 日 -9.14%；臺指期日盤 +3.49%；當日夜盤日報尚缺",
   "risk": "海外收盤與台股開盤存在時間差，突發消息及開盤後資金流可能改變方向。",
   "model_version": "projection-3.1",
   "flat_pct": 0.3,
   "base_date": "2026-11-26",
   "base_close": 39151.81,
-  "estimated_close": 38065.39,
+  "estimated_close": 38326.88,
   "estimated_range": {
-    "low": 36536.87,
-    "high": 39593.91
+    "low": 36798.36,
+    "high": 39855.4
   },
-  "estimated_change": -1086.42,
-  "estimated_change_pct": -2.77,
+  "estimated_change": -824.93,
+  "estimated_change_pct": -2.11,
   "completeness": {
     "twse_sessions": 11,
     "us_count": 4,
     "us_target": 4,
-    "day_futures_available": false,
+    "day_futures_available": true,
     "overnight_available": false
   },
   "inputs": {
@@ -79,6 +79,7 @@
         {
           "date": "2026-11-26",
           "close": 39151.81,
+          "trade_value": 837652988083,
           "source": "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&date=20261126&type=IND"
         }
       ]
@@ -133,10 +134,26 @@
         "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/TSM?range=10d&interval=1d"
       }
     ],
-    "day_futures": null,
+    "day_futures": {
+      "symbol": "TX",
+      "contract": "202612",
+      "trade_date": "2026-11-26",
+      "session_start": "2026-11-26T08:45:00+08:00",
+      "session_end": "2026-11-26T13:45:00+08:00",
+      "last": 39455,
+      "change": 1332,
+      "change_pct": 3.49,
+      "reference_settlement": 38123,
+      "verified": true,
+      "source": "TAIFEX",
+      "quote_type": "official_regular_daily_report",
+      "source_url": "https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=0&commodity_id=TX",
+      "settlement_source_url": "https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=0&commodity_id=TX&queryDate=2026%2F11%2F25",
+      "updated_at": "2026-11-26T16:08:32+08:00"
+    },
     "night": null
   },
   "date": "2026-11-27",
   "status": "provisional",
-  "generated_at": "2026-11-26T14:11:25+08:00"
+  "generated_at": "2026-11-26T18:16:13+08:00"
 }
