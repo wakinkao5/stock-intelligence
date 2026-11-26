@@ -596,19 +596,67 @@ async function loadMarketNews(){
  }
 }
 
-async function loadGlobal(){
+async function checkTaiwanStockClose(day){
+ const source='https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&type=24&date='+day.replaceAll('-','');
+ const report=await fetchJson(source);
+ if(report.stat!=='OK')throw Error('證交所台積電正式報表尚未發布');
+ if(report.date!==day.replaceAll('-',''))throw Error('台積電正式報表交易日不符');
+ const fields=['證券代號','收盤價','漲跌(+/-)','漲跌價差'];
+ const table=report.tables?.find(item=>fields.every(field=>item.fields?.includes(field)));
+ const indices=fields.map(field=>table?.fields.indexOf(field));
+ const row=table?.data.find(item=>item[indices[0]]==='2330');
+ if(!row)throw Error('證交所報表缺少台積電收盤');
+ const number=value=>String(value??'').trim()?Number(String(value).replaceAll(',','')):NaN;
+ const close=number(row[indices[1]]);
+ const marker=String(row[indices[2]]).replace(/<[^>]*>/g,'').trim();
+ const difference=number(row[indices[3]]);
+ const change=Math.abs(difference)*(marker==='-'?-1:1);
+ if(!Number.isFinite(close)||close<=0||!Number.isFinite(change)||close-change<=0||
+    (change!==0&&!['+','-'].includes(marker)))throw Error('證交所台積電收盤數值異常');
+ return {name:'台積電',symbol:'2330',date:day,close,change,
+  change_pct:100*change/(close-change),exchange_timezone:'Asia/Taipei',
+  session_complete:true, source:'證交所 MI_INDEX 正式收盤',source_url:source,
+  updated_at:new Date().toISOString()};
+}
+
+async function loadGlobal(stockCheck){
  const head=document.getElementById('global-head'),sub=document.getElementById('global-sub');
  const isQuote=x=>x&&typeof x.name==='string'&&Number.isFinite(x.close)&&x.close>0&&
   /^\d{4}-\d{2}-\d{2}$/.test(x.date)&&x.date<=taipeiDate()&&Number.isFinite(x.change_pct);
  const {data,changed}=await marketFile('global.json',d=>Array.isArray(d.rows)&&d.rows.some(isQuote),
   d=>String(d.updated_at),d=>JSON.stringify(d.rows));
  const rows=data.rows.filter(isQuote);
+ const sourceErrors={...data.source_errors};
+ let stockStatus='';
+ const direct=await stockCheck;
+ if(direct?.status==='fulfilled'){
+  const row=direct.value;
+  const existing=rows.findIndex(q=>q.symbol==='2330');
+  const prior=rows[existing];
+  if(prior?.date===row.date&&prior.close!==row.close){
+   sourceErrors['2330']='更新失敗';
+   stockStatus='台積電兩份正式報表價格不一致';
+  }else{
+   if(!prior||row.date>=prior.date){
+    if(prior)rows[existing]=row;
+    else rows.push(row);
+    delete sourceErrors['2330'];
+   }
+   const latest=rows.find(q=>q.symbol==='2330');
+   stockStatus='台積電正式收盤 '+latest.date+' 13:30（'+latest.source+'）';
+  }
+ }else if(direct?.status==='rejected'){
+  const error=direct.reason;
+  const reason=error.name==='AbortError'?'連線逾時':error instanceof TypeError?'網路或跨來源連線失敗':error.message;
+  sourceErrors['2330']='更新失敗';
+  stockStatus='台積電直接查詢失敗（'+reason+'）';
+ }
  const oldest=previousWeekday(previousWeekday(taipeiDate()));
- const count=renderMarketRows(rows,oldest,data.updated_at,data.source_errors);
+ const count=renderMarketRows(rows,oldest,data.updated_at,sourceErrors);
  lastGlobalQuotes=rows.filter(x=>x.session_complete===true&&!x.stale&&x.date>=oldest);
  head.textContent='市場行情 '+count+'/'+document.querySelectorAll('#markets details').length+' 項有報價';
  sub.textContent='後台每 30 分鐘檢查｜行情發布時間依各來源｜上次寫入 '+taipeiTime(data.updated_at);
- return changed;
+ return {changed,stockStatus};
 }
 
 async function loadOfficial(manual=false){
@@ -628,18 +676,18 @@ async function loadOfficial(manual=false){
  const lastCheckLabel=()=>lastManualCheck?'｜上次手動檢查 '+taipeiTime(lastManualCheck):'';
  status.textContent=manual?'正在取得最新行情…':'正在載入已發布行情…';
  try {
-  const global=loadGlobal().catch(()=>{document.getElementById('global-head').textContent='國際行情更新失敗，保留可用資料。';});
   const calendar=loadTradingCalendar();
+  const stockCheck=manual?calendar.then(async()=>(
+   await Promise.allSettled([checkTaiwanStockClose(checkableSession(new Date()))])
+  )[0]):null;
+  const global=loadGlobal(stockCheck).catch(()=>{document.getElementById('global-head').textContent='國際行情更新失敗，保留可用資料。';});
   const supporting=Promise.allSettled([global,calendar.then(()=>loadFutures(manual)),loadMarketNews()]);
   await calendar;
-  try{
-   const message=await loadTaiwan(manual);
-   status.textContent=message+lastCheckLabel()+'｜盤中行情來源未接入'+
-    (manual?'｜上櫃、台積電、國際行情及消息讀取已發布資料':'');
-  }catch(error){
-   status.textContent='台股查詢失敗（'+error.message+'）'+lastCheckLabel();
-  }
-  await supporting;
+  const taiwan=await loadTaiwan(manual).catch(error=>'台股查詢失敗（'+error.message+'）');
+  const [markets]=await supporting;
+  const stockStatus=markets.value?.stockStatus;
+  status.textContent=taiwan+lastCheckLabel()+'｜盤中行情來源未接入'+
+   (manual?'｜'+(stockStatus||'台積電／國際行情讀取失敗')+'｜上櫃、國際行情及消息讀取已發布資料':'');
   renderInternationalSummary();
   if(window.forecastRows){
    await renderNextForecast(window.forecastRows,manual);
