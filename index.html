@@ -277,7 +277,7 @@ async function checkOfficialClose(day) {
  return {row:{date:day,close,change,changePct,source},obtainedAt:new Date()};
 }
 
-let officialObtainedAt=null;
+let checkedOfficialClose=null;
 let lastManualCheck=null;
 async function loadTaiwan(manual=false) {
  const now=new Date(), today=taipeiDate(now), session=checkableSession(now);
@@ -286,13 +286,14 @@ async function loadTaiwan(manual=false) {
   d=>d.rows.at(-1).date+' '+d.updated_at,d=>JSON.stringify(d.rows));
  const [repo,direct]=await Promise.allSettled([published,manual?checkOfficialClose(session):Promise.resolve(null)]);
  const directQuote=direct.status==='fulfilled'?direct.value:null;
- if(directQuote)officialObtainedAt=directQuote.obtainedAt;
+
  let data=repo.status==='fulfilled'?repo.value.data:prior;
  if(directQuote){
   const {row}=directQuote;
   const rows=new Map((data?.rows??[]).map(item=>[item.date,item]));
   const existing=rows.get(row.date);
   if(existing&&existing.close!==row.close)throw Error('證交所兩份正式報表的收盤指數不一致');
+  checkedOfficialClose=directQuote;
   rows.set(row.date,{...row,...existing});
   data={...data,rows:[...rows.values()].sort((a,b)=>a.date.localeCompare(b.date))};
   if(validCloses(data))marketCache.set('taiex.json',data);
@@ -306,7 +307,7 @@ async function loadTaiwan(manual=false) {
  const notice=isClosedDay(today)?'｜今日休市':last.date<today?
   (now>=new Date(today+'T13:30:00+08:00')?'｜今日正式收盤尚未取得':'｜最近交易日收盤'):'';
  const source=last.source?.includes('MI_INDEX')?'MI_INDEX':'FMTQIK';
- const obtained=officialObtainedAt??data.updated_at;
+ const obtained=checkedOfficialClose?.row.date===last.date?checkedOfficialClose.obtainedAt:data.updated_at;
  document.getElementById('data-status').textContent=
   `行情時間 ${quoteTime} 正式收盤｜證交所 ${source}${notice}｜最後成功取得 ${taipeiTime(obtained)}`;
  const old=prior?.rows.at(-1);
@@ -634,7 +635,7 @@ async function loadOfficial(manual=false){
   try{
    const message=await loadTaiwan(manual);
    status.textContent=message+lastCheckLabel()+'｜盤中行情來源未接入'+
-    (manual?'｜其他股市顯示後台最新資料':'');
+    (manual?'｜上櫃、台積電、國際行情及消息讀取已發布資料':'');
   }catch(error){
    status.textContent='台股查詢失敗（'+error.message+'）'+lastCheckLabel();
   }
@@ -719,16 +720,19 @@ function makeLocalProjection(rows,day,now) {
  const score=useNight ? .85*adjusted+.15*clamp(night.change_pct/2) : adjusted;
  const typical=window.slice(1).reduce((sum,row,index)=>sum+Math.abs(row.close/window[index].close-1)*100,0)/10;
  const estimated_close=Number((prior.close*(1+score*typical/100)).toFixed(2));
+ const spread=prior.close*typical/100;
+ const estimated_range={low:Number(Math.max(0,estimated_close-spread).toFixed(2)),high:Number((estimated_close+spread).toFixed(2))};
  const estimated_change=Number((estimated_close-prior.close).toFixed(2));
  const estimated_change_pct=Number((100*estimated_change/prior.close).toFixed(2));
  const direction=estimated_change_pct>.30?'偏多':estimated_change_pct<-.30?'偏空':'震盪';
- return {base_date:base,base_close:prior.close,estimated_close,estimated_change,estimated_change_pct,direction,
+ return {base_date:base,base_close:prior.close,estimated_close,estimated_change,estimated_change_pct,estimated_range,direction,
   generated_at:new Date().toISOString(),completeness:{us_count:us.length,us_target:symbols.length,day_futures_available:!!useRegular,overnight_available:!!useNight}};
 }
 
 async function renderNextForecast(rows,manual){
  const latest=rows.at(-1),now=new Date(),today=taipeiDate(now);
  const cutoff=new Date(today+'T08:45:00+08:00');
+ const deadline=new Date(today+'T08:46:00+08:00');
  const isWeekday=!isClosedDay(today);
  const day=forecastTarget(now);
  const byId=id=>document.getElementById(id);
@@ -740,7 +744,7 @@ async function renderNextForecast(rows,manual){
   marketFile('outlook.json',d=>d.status==='provisional'&&!!d.generated_at,d=>d.generated_at,d=>JSON.stringify(d))
  ]);
  const [predictions,verification,backend]=records.map(result=>result.status==='fulfilled'?result.value.data:null);
- const lockedFor=date=>predictions?.rows.find(p=>p.date===date&&p.time==='08:45'&&p.status==='locked');
+ const lockedFor=date=>predictions?.rows.find(p=>p.date===date&&p.time==='08:45'&&p.status==='locked'&&p.on_time===true);
  const official=lockedFor(day);
  const todayOfficial=lockedFor(today);
  const local=makeLocalProjection(rows,day,now);
@@ -756,7 +760,8 @@ async function renderNextForecast(rows,manual){
  const estimate=byId('forecast-estimate');
  byId('forecast-day').textContent=day.slice(5).replace('-','/')+' 預報';
  byId('forecast-state').textContent=official?(official.on_time?'08:45 已鎖定':'延遲鎖定'):
-  !predictions?'正式紀錄待查':day===today&&now>=cutoff?'暫定｜正式未鎖定':'暫定';
+  !predictions?'正式紀錄待查':day===today&&now>=deadline?'暫定｜08:45 鎖定失敗':
+  day===today&&now>=cutoff?'暫定｜正在確認正式鎖定':'暫定';
  byId('forecast-label').textContent=forecast.direction??'資料不足';
  byId('forecast-icon').textContent=forecast.icon??outlookWeather(forecast.direction);
  byId('forecast-updated').textContent=official?'鎖定 '+taipeiTime(official.locked_at):
@@ -766,6 +771,7 @@ async function renderNextForecast(rows,manual){
   `估 ${thousands(forecast.estimated_close)}｜${sign(forecast.estimated_change)}${thousands(Math.abs(forecast.estimated_change))} 點（${fmtPct(forecast.estimated_change_pct)}）`:'';
  estimate.style.color=!hasEstimate?'':forecast.estimated_change>0?'#c53939':forecast.estimated_change<0?'#15803d':'';
  info.replaceChildren();
+ if(forecast.estimated_range)add('預估收盤區間 '+thousands(forecast.estimated_range.low)+'～'+thousands(forecast.estimated_range.high)+'（依近期波動估算）');
  if(forecast.base_date)add(`基準 ${forecast.base_date} 正式收盤 ${thousands(forecast.base_close)}`);
  if(official){
   add('預測交易日 '+official.date+'｜資料截止 '+taipeiTime(official.cutoff_at));
@@ -782,14 +788,19 @@ async function renderNextForecast(rows,manual){
  const checked=verification?.rows.find(r=>r.date===today);
  const labels={correct:'正確',incorrect:'錯誤',unlocked:'未鎖定，不列入準確率',late:'延遲鎖定，不列入準確率',insufficient:'資料不足，不列入準確率'};
  byId('verification-today').textContent=!isWeekday&&pending?'今日休市':pending?'等待今日正式收盤｜'+
-  (todayOfficial?.direction??(now>=cutoff?'未鎖定，不列入準確率':'等待 08:45 鎖定')):
+  (todayOfficial?.direction??(now>=deadline?(predictions?'08:45 鎖定失敗，不列入準確率':'正式紀錄待查'):'等待 08:45 鎖定')):
   today+' 收盤 '+latest.close.toLocaleString('zh-TW',{minimumFractionDigits:2})+'｜'+
   (checked?.direction??todayOfficial?.direction??'')+' '+(labels[checked?.status]??
   (!verification?'驗證資料讀取失敗':!todayOfficial?'未鎖定，不列入準確率':'等待驗證'));
+ const errors=[];
+ if(Number.isFinite(checked?.index_error_points))errors.push('指數誤差 '+thousands(Math.abs(checked.index_error_points))+' 點');
+ if(Number.isFinite(checked?.change_error_pp))errors.push('漲跌幅誤差 '+thousands(Math.abs(checked.change_error_pp))+' 個百分點');
+ if(typeof checked?.range_hit==='boolean')errors.push(checked.range_hit?'落在預測區間':'超出預測區間');
+ if(errors.length)byId('verification-today').append('｜'+errors.join('｜'));
  const stat=verification?.stats;
  const pct=value=>typeof value==='number'?(100*value).toFixed(1)+'%':'—';
  byId('verification-stats').textContent=stat?
-  `有效 ${stat.valid}｜正確 ${stat.correct}｜錯誤 ${stat.incorrect}｜未鎖定 ${stat.unlocked}｜延遲 ${stat.late}｜累計 ${pct(stat.overall)}｜近 5 日 ${pct(stat.last5)}｜近 20 日 ${pct(stat.last20)}`:'準確率讀取失敗';
+  `有效 ${stat.valid}｜正確 ${stat.correct}｜錯誤 ${stat.incorrect}｜未鎖定 ${stat.unlocked}｜延遲 ${stat.late}｜累計 ${pct(stat.overall)}｜近 5 日 ${pct(stat.last5)}｜近 20 日 ${pct(stat.last20)}｜區間命中率 ${pct(stat.range_accuracy)}（${stat.range_valid??0} 筆）`:'準確率讀取失敗';
 }
 function renderWeekly(rows){
  const el=document.getElementById('weekly-forecast');el.replaceChildren();

@@ -1,0 +1,13 @@
+{
+  "purpose": "connector-write-read-control",
+  "trading_date": "2026-11-25",
+  "verified_quotes": [
+    {
+      "name": "台灣加權指數",
+      "value": 38195.43,
+      "quote_at": "2026-11-25T13:30:00+08:00",
+      "source_url": "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&date=20261125&type=IND"
+    }
+  ],
+  "scheduled_task": false
+}
