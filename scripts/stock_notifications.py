@@ -156,7 +156,7 @@ def verify_pages(path, expected):
                 valid = json.load(response) == expected
             if valid:
                 with urllib.request.urlopen(PAGES + "?verify=" + str(attempt), timeout=6) as response:
-                    if "台股智慧決策中心 V3.18" in response.read().decode("utf-8"):
+                    if 'id="market-reports"' in response.read().decode("utf-8"):
                         return True
         except (OSError, ValueError):
             pass
