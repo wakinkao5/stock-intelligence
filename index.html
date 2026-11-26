@@ -277,6 +277,27 @@ async function checkOfficialClose(day) {
  return {row:{date:day,close,change,changePct,source},obtainedAt:new Date()};
 }
 
+function renderTaiwanChart(rows, now) {
+ const day=taipeiDate(now);
+ const historical=rows.filter(row=>row.date>='2026-10-01').slice(-65);
+ const svg=document.getElementById('close-chart');
+ const waitingForToday=!isClosedDay(day)&&now>=new Date(day+'T09:00:00+08:00')&&rows.at(-1)?.date!==day;
+ if(!waitingForToday&&historical.length>=2){
+  svg.setAttribute('aria-label','最近交易日收盤走勢圖，最後一日 '+historical.at(-1).date);
+  drawCloses(historical);
+  return;
+ }
+ const message=waitingForToday?'今日盤中走勢未提供｜尚無授權來源':'收盤歷史資料不足';
+ svg.setAttribute('aria-label',message);
+ const text=document.createElementNS('http://www.w3.org/2000/svg','text');
+ text.setAttribute('x','300');
+ text.setAttribute('y','85');
+ text.setAttribute('text-anchor','middle');
+ text.setAttribute('fill','#718096');
+ text.textContent=message;
+ svg.replaceChildren(text);
+}
+
 let checkedOfficialClose=null;
 let lastManualCheck=null;
 async function loadTaiwan(manual=false) {
@@ -301,15 +322,18 @@ async function loadTaiwan(manual=false) {
  if(!data?.rows?.length)throw Error(direct.status==='rejected'?direct.reason.message:repo.reason.message);
  const {rows} = data;
  const last = rows.at(-1), prev = rows.at(-2);
- document.getElementById('index-value').className='index '+(prev?(last.close>prev.close?'red':last.close<prev.close?'green':'muted'):'');document.getElementById('index-value').textContent=last.close.toLocaleString('zh-TW',{minimumFractionDigits:2,maximumFractionDigits:2});const delta=last.change??(prev?last.close-prev.close:null);const pct=last.changePct??(prev?delta/prev.close*100:null);const el=document.getElementById('index-change');el.className=delta===null?'muted':delta>0?'red':delta<0?'green':'muted';el.textContent=delta===null?'缺少前一交易日資料':`${delta>0?'▲':delta<0?'▼':'—'} ${Math.abs(delta).toFixed(2)}（${delta>=0?'+':''}${pct.toFixed(2)}%）`;document.getElementById('index-source').textContent=`${last.date} 收盤`;document.getElementById('latest-date').textContent=last.date;const hasTradeValue=Number.isFinite(last.trade_value)&&last.trade_value>0;document.getElementById('trade-value').textContent=hasTradeValue?(last.trade_value/1e8).toLocaleString('zh-TW',{maximumFractionDigits:0})+' 億':'待官方資料同步';if(rows.length>=2)window.forecastRows=rows;renderBeginnerSummary(last,prev);drawCloses(rows.filter(r=>r.date>="2026-10-01").slice(-65));renderQuarter(rows);document.getElementById("ai-state").textContent="歷史統計｜非AI預測";
+ document.getElementById('index-value').className='index '+(prev?(last.close>prev.close?'red':last.close<prev.close?'green':'muted'):'');document.getElementById('index-value').textContent=last.close.toLocaleString('zh-TW',{minimumFractionDigits:2,maximumFractionDigits:2});const delta=last.change??(prev?last.close-prev.close:null);const pct=last.changePct??(prev?delta/prev.close*100:null);const el=document.getElementById('index-change');el.className=delta===null?'muted':delta>0?'red':delta<0?'green':'muted';el.textContent=delta===null?'缺少前一交易日資料':`${delta>0?'▲':delta<0?'▼':'—'} ${Math.abs(delta).toFixed(2)}（${delta>=0?'+':''}${pct.toFixed(2)}%）`;document.getElementById('index-source').textContent=`${last.date} 收盤`;document.getElementById('latest-date').textContent=last.date;const hasTradeValue=Number.isFinite(last.trade_value)&&last.trade_value>0;document.getElementById('trade-value').textContent=hasTradeValue?(last.trade_value/1e8).toLocaleString('zh-TW',{maximumFractionDigits:0})+' 億':'待官方資料同步';if(rows.length>=2)window.forecastRows=rows;renderBeginnerSummary(last,prev);renderTaiwanChart(rows,now);renderQuarter(rows);document.getElementById("ai-state").textContent="歷史統計｜非AI預測";
  showClosingSummary(last,prev);
  const quoteTime=last.date+' 13:30';
- const notice=isClosedDay(today)?'｜今日休市':last.date<today?
+ const closed=isClosedDay(today);
+ const notice=closed?'｜今日休市':last.date<today?
   (now>=new Date(today+'T13:30:00+08:00')?'｜今日正式收盤尚未取得':'｜最近交易日收盤'):'';
- const source=last.source?.includes('MI_INDEX')?'MI_INDEX':'FMTQIK';
- const obtained=checkedOfficialClose?.row.date===last.date?checkedOfficialClose.obtainedAt:data.updated_at;
+ const checked=checkedOfficialClose?.row.date===last.date?checkedOfficialClose:null;
+ const source=(checked?.row.source??last.source)?.includes('MI_INDEX')?'MI_INDEX':'FMTQIK';
+ const retrieval=checked?'本機擷取 '+taipeiTime(checked.obtainedAt):
+  data.updated_at?'後台擷取 '+taipeiTime(data.updated_at):'擷取時間未提供';
  document.getElementById('data-status').textContent=
-  `行情時間 ${quoteTime} 正式收盤｜證交所 ${source}${notice}｜最後成功取得 ${taipeiTime(obtained)}`;
+  `行情時間 ${quoteTime} 正式收盤｜證交所 ${source}${notice}｜${retrieval}`;
  const old=prior?.rows.at(-1);
  if(direct.status==='rejected'){
   const error=direct.reason;
@@ -687,8 +711,22 @@ async function loadOfficial(manual=false){
   const taiwan=await loadTaiwan(manual).catch(error=>'台股查詢失敗（'+error.message+'）');
   const [markets]=await supporting;
   const stockStatus=markets.value?.stockStatus;
-  status.textContent=taiwan+lastCheckLabel()+'｜盤中行情來源未接入'+
+  status.textContent=taiwan+lastCheckLabel()+
    (manual?'｜'+(stockStatus||'台積電／國際行情讀取失敗')+'｜上櫃、國際行情及消息讀取已發布資料':'');
+  const now=new Date();
+  const today=taipeiDate(now);
+  if(!isClosedDay(today)&&now>=new Date(today+'T09:00:00+08:00')&&now<new Date(today+'T13:30:00+08:00')){
+   status.append('｜加權、上櫃與台積電盤中行情未取得本站公開展示授權｜');
+   const lookup=(label,url)=>{
+    const link=textNode('a',label);
+    link.href=url;
+    link.target='_blank';
+    link.rel='noopener noreferrer';
+    return link;
+   };
+   status.append(lookup('證交所盤中行情','https://mis.twse.com.tw/'),'、',
+    lookup('櫃買中心盤中行情','https://www.tpex.org.tw/zh-tw/index.html'));
+  }
   renderInternationalSummary();
   if(window.forecastRows){
    await renderNextForecast(window.forecastRows,manual);
@@ -778,6 +816,17 @@ function makeLocalProjection(rows,day,now) {
   generated_at:new Date().toISOString(),completeness:{us_count:us.length,us_target:symbols.length,day_futures_available:!!useRegular,overnight_available:!!useNight}};
 }
 
+function isVerifiedLock(record,day) {
+ if(record.date!==day||record.time!=='08:45'||record.status!=='locked'||record.on_time!==true)return false;
+ const cutoff=Date.parse(day+'T08:45:00+08:00');
+ const captured=Date.parse(record.captured_at);
+ const locked=Date.parse(record.locked_at);
+ return Date.parse(record.cutoff_at)===cutoff&&captured>=cutoff-300000&&captured<cutoff&&
+  locked>=cutoff&&locked<cutoff+60000&&['偏多','偏空','震盪'].includes(record.direction)&&
+  Number.isFinite(record.estimated_close)&&record.estimated_close>0&&Number.isFinite(record.estimated_change)&&
+  Number.isFinite(record.estimated_change_pct);
+}
+
 async function renderNextForecast(rows,manual){
  const latest=rows.at(-1),now=new Date(),today=taipeiDate(now);
  const cutoff=new Date(today+'T08:45:00+08:00');
@@ -793,29 +842,30 @@ async function renderNextForecast(rows,manual){
   marketFile('outlook.json',d=>d.status==='provisional'&&!!d.generated_at,d=>d.generated_at,d=>JSON.stringify(d))
  ]);
  const [predictions,verification,backend]=records.map(result=>result.status==='fulfilled'?result.value.data:null);
- const lockedFor=date=>predictions?.rows.find(p=>p.date===date&&p.time==='08:45'&&p.status==='locked'&&p.on_time===true);
+ const lockedFor=date=>predictions?.rows.find(record=>isVerifiedLock(record,date));
  const official=lockedFor(day);
- const todayOfficial=lockedFor(today);
- const local=makeLocalProjection(rows,day,now);
+ const todayOfficial=day===today?official:lockedFor(today);
+ const expired=day===today&&now>=deadline;
+ const local=official||expired?null:makeLocalProjection(rows,day,now);
  const globalUpdated=marketCache.get('global.json')?.updated_at;
- const useBackend=!manual&&backend?.date===day&&backend.base_date===local.base_date&&
+ const useBackend=local&&!manual&&backend?.date===day&&backend.base_date===local.base_date&&
   backend.base_close===local.base_close&&(!globalUpdated||new Date(backend.generated_at)>=new Date(globalUpdated))&&
   new Date(backend.generated_at)>=new Date(marketCache.get('night-futures.json')?.updated_at??0)&&
   new Date(backend.generated_at)>=new Date(marketCache.get('day-futures.json')?.updated_at??0);
- const forecast=official??(useBackend?backend:local);
+ const forecast=official??(useBackend?backend:local)??{missing:predictions?'今日未保存有效的 08:45 鎖定紀錄。':'08:45 鎖定紀錄目前無法讀取。'};
  const hasEstimate=Number.isFinite(forecast.estimated_close);
  const thousands=value=>value.toLocaleString('zh-TW',{minimumFractionDigits:2,maximumFractionDigits:2});
  const sign=value=>value>0?'+':value<0?'−':'';
  const estimate=byId('forecast-estimate');
  byId('forecast-day').textContent=day.slice(5).replace('-','/')+' 預報';
- byId('forecast-state').textContent=official?(official.on_time?'08:45 已鎖定':'延遲鎖定'):
-  !predictions?'正式紀錄待查':day===today&&now>=deadline?'暫定｜08:45 鎖定失敗':
-  day===today&&now>=cutoff?'暫定｜正在確認正式鎖定':'暫定';
- byId('forecast-label').textContent=forecast.direction??'資料不足';
- byId('forecast-icon').textContent=forecast.icon??outlookWeather(forecast.direction);
+ byId('forecast-state').textContent=official?'08:45 已鎖定':
+  !predictions?'正式紀錄待查':expired?'08:45 鎖定失敗':
+  day===today&&now>=cutoff?'正在確認正式鎖定':'暫定';
+ byId('forecast-label').textContent=forecast.direction??(expired?'今日無正式預報':'資料不足');
+ byId('forecast-icon').textContent=forecast.direction?(forecast.icon??outlookWeather(forecast.direction)):'—';
  byId('forecast-updated').textContent=official?'鎖定 '+taipeiTime(official.locked_at):
-  forecast.generated_at?'更新 '+taipeiTime(forecast.generated_at):'等待有效行情';
- byId('forecast-prob').textContent='機率尚未校準';
+  forecast.generated_at?'更新 '+taipeiTime(forecast.generated_at):expired?'':'等待有效行情';
+ byId('forecast-prob').textContent=hasEstimate?'機率尚未校準':'';
  estimate.textContent=hasEstimate?
   `估 ${thousands(forecast.estimated_close)}｜${sign(forecast.estimated_change)}${thousands(Math.abs(forecast.estimated_change))} 點（${fmtPct(forecast.estimated_change_pct)}）`:'';
  estimate.style.color=!hasEstimate?'':forecast.estimated_change>0?'#c53939':forecast.estimated_change<0?'#15803d':'';
@@ -853,7 +903,10 @@ async function renderNextForecast(rows,manual){
 }
 function renderWeekly(rows){
  const el=document.getElementById('weekly-forecast');el.replaceChildren();
- const f=buildOutlook(rows,lastGlobalQuotes),days=nextSessionDates(rows.at(-1).date,5);
+ const now=new Date(),today=taipeiDate(now);
+ const afterCutoff=now>=new Date(today+'T08:46:00+08:00');
+ const anchor=afterCutoff&&rows.at(-1).date<today?today:rows.at(-1).date;
+ const f=buildOutlook(rows,lastGlobalQuotes),days=nextSessionDates(anchor,5);
  const title=document.createElement('h2');title.textContent='未來五個交易日展望';el.append(title);
  const p=document.createElement('p');p.className='small';p.textContent='基準情境：'+f.direction+(f.localOnly?'。國際行情不足，依近期台股動能估計。':'。以目前可用的國際市場與台股短期動能推估。')+' 越遠的交易日不確定性越高。';el.append(p);
  const grid=document.createElement('div');grid.style.cssText='display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:5px;margin:12px 0';

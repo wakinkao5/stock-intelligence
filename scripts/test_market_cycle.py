@@ -35,6 +35,16 @@ class ForecastLockTests(TestCase):
                 cycle.lock_forecast(taipei_at(invoked_at))
         self.assertEqual(cycle.read("predictions.json")["rows"], [])
 
+    def test_provisional_outlook_does_not_recalculate_after_missed_lock(self):
+        previous = {"date": DAY, "status": "provisional", "estimated_close": 10100}
+        cycle.write("outlook.json", previous)
+        with patch.object(cycle, "forecast_inputs") as calculate:
+            cycle.publish_outlook(taipei_at("08:46:00"))
+            cycle.publish_outlook(taipei_at("10:00:00"))
+        calculate.assert_not_called()
+        self.assertEqual(cycle.read("outlook.json"), previous)
+        self.assertEqual(cycle.read("predictions.json")["rows"], [])
+
     def test_pre_cutoff_snapshot_required(self):
         draft = cycle.read("forecast-snapshot.json")
         draft["captured_at"] = taipei_at("08:45:10").isoformat()

@@ -166,6 +166,9 @@ def forecast_inputs(day, strict=True, as_of=None):
 
 def publish_outlook(now):
     day = forecast_day(now)
+    deadline = datetime.combine(day, LOCK, TZ) + timedelta(minutes=1)
+    if day == now.date() and now >= deadline:
+        return
     official = read("predictions.json")["rows"]
     if any(row["date"] == day.isoformat() for row in official):
         return
