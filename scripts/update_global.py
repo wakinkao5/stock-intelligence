@@ -137,12 +137,25 @@ def store_quotes(book, updates, now):
         if isinstance(item, Exception):
             results[symbol] = {"status": "error", "detail": str(item), "retained": (old or {}).get("date")}
         elif old and item["date"] < old["date"]:
-            results[symbol] = {"status": "error", "detail": "older source data rejected", "retained": old["date"]}
+            results[symbol] = {"status": "error", "detail": "older source data rejected",
+                               "received": item["date"], "retained": old["date"]}
         else:
             previous[symbol] = item
             results[symbol] = {"status": "unchanged" if old == item else "updated", "quote_date": item["date"]}
     rows = list(previous.values())
-    errors = {symbol: "更新失敗" for symbol, result in results.items() if result["status"] == "error"}
+    errors = {}
+    for symbol, result in results.items():
+        if result["status"] != "error":
+            continue
+        detail = result["detail"]
+        if result.get("received"):
+            errors[symbol] = f"來源回傳較舊的 {result['received']}，保留 {result['retained']} 行情"
+        elif detail.startswith("US close ") and detail.endswith("has not reached either endpoint"):
+            errors[symbol] = f"兩個來源都尚未提供 {detail.split()[2]} 美股正式收盤"
+        elif "timed out" in detail.lower():
+            errors[symbol] = "行情來源連線逾時"
+        else:
+            errors[symbol] = "行情來源未回傳有效報價"
     if book["rows"] != rows or book.get("source_errors", {}) != errors:
         market_cycle.write("global.json", {**book, "updated_at": now.isoformat(timespec="seconds"),
                                            "rows": rows, "source_errors": errors})

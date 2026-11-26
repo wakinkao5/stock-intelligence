@@ -538,9 +538,10 @@ function renderMarketRows(rows,oldest,updatedAt,errors={}){
     const points=[q.change,q.change_points].find(Number.isFinite);
     body.append(
      textNode('div',(name===shortMarketName[name]||!shortMarketName[name]?'':name+'｜')+'收盤 '+marketNumber.format(q.close)+'｜漲跌點數 '+(Number.isFinite(points)?(points>0?'+':'')+marketNumber.format(points):'來源未提供')),
-     textNode('div','交易日 '+q.date+'｜資料更新 '+taipeiTime(q.updated_at??updatedAt)),
+     textNode('div','交易日 '+q.date+(['TPEX','2330'].includes(q.symbol)?'｜台灣時間 13:30 正式收盤':'｜來源僅提供日線日期')+'｜資料更新 '+taipeiTime(q.updated_at??updatedAt)),
      textNode('div',q.source||'來源未標示')
     );
+    if(errors[q.symbol])body.append(textNode('div',errors[q.symbol]));
     count++;
    }else body.append(textNode('div','等待可核對的行情'));
    entry.append(summary,body);
@@ -634,8 +635,8 @@ async function loadGlobal(stockCheck){
   const existing=rows.findIndex(q=>q.symbol==='2330');
   const prior=rows[existing];
   if(prior?.date===row.date&&prior.close!==row.close){
-   sourceErrors['2330']='更新失敗';
    stockStatus='台積電兩份正式報表價格不一致';
+   sourceErrors['2330']=stockStatus;
   }else{
    if(!prior||row.date>=prior.date){
     if(prior)rows[existing]=row;
@@ -648,8 +649,8 @@ async function loadGlobal(stockCheck){
  }else if(direct?.status==='rejected'){
   const error=direct.reason;
   const reason=error.name==='AbortError'?'連線逾時':error instanceof TypeError?'網路或跨來源連線失敗':error.message;
-  sourceErrors['2330']='更新失敗';
   stockStatus='台積電直接查詢失敗（'+reason+'）';
+  sourceErrors['2330']=stockStatus;
  }
  const oldest=previousWeekday(previousWeekday(taipeiDate()));
  const count=renderMarketRows(rows,oldest,data.updated_at,sourceErrors);

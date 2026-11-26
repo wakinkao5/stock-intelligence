@@ -334,10 +334,13 @@ def publish_close(now):
     for prior, current in zip(rows, rows[1:]):
         if current["date"] == day and day >= START and day not in seen:
             try:
+                expected = adjacent_session(now.date(), -1).isoformat()
+                if prior["date"] != expected:
+                    raise ValueError(f"Missing official close for previous session {expected}")
                 outcome = verify(current, prior, predictions.get(day))
-            except (KeyError, ValueError, TypeError):
+            except (KeyError, ValueError, TypeError) as error:
                 outcome = {"date": day, "close": current["close"], "previous": prior,
-                           "status": "insufficient", "source": CLOSE_SOURCE}
+                           "status": "insufficient", "source": CLOSE_SOURCE, "detail": str(error)}
             results["rows"].append(outcome)
     results["rows"].sort(key=lambda r: r["date"])
     results["stats"] = stats(results["rows"])
