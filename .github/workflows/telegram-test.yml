@@ -6,6 +6,10 @@ on:
         description: 'Exact pairing message you sent to your bot'
         required: true
         type: string
+      return_chat_id:
+        description: 'Send the paired Chat ID privately to that chat'
+        default: false
+        type: boolean
 permissions:
   contents: read
 jobs:
@@ -16,6 +20,7 @@ jobs:
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           PAIRING_CODE: ${{ inputs.pairing_code }}
+          RETURN_CHAT_ID: ${{ inputs.return_chat_id }}
         run: |
           python - <<'PY'
           import os, json, urllib.request
@@ -37,6 +42,11 @@ jobs:
           chats = {u['message']['chat']['id'] for u in updates if 'message' in u and u['message']['chat']['type']=='private' and u['message'].get('text')==code}
           if len(chats)!=1:
               raise SystemExit('No unique matching private chat; send pairing code to bot again')
-          call('sendMessage', {'chat_id':chats.pop(), 'text':'台股情報中心｜Telegram 主動通知測試成功！此為連線測試，非即時行情。'})
+          chat = chats.pop()
+          if os.environ['RETURN_CHAT_ID'] == 'true':
+              text = '台股情報中心｜僅供存入 GitHub Actions Secret TELEGRAM_CHAT_ID：' + str(chat)
+          else:
+              text = '台股情報中心｜Telegram 主動通知測試成功！此為連線測試，非即時行情。'
+          call('sendMessage', {'chat_id': chat, 'text': text})
           print('Telegram notification sent successfully')
           PY

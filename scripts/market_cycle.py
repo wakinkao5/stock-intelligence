@@ -5,6 +5,7 @@ import math
 import os
 import subprocess
 import sys
+import time
 import urllib.request
 from datetime import datetime, time as clock, timedelta
 from decimal import Decimal
@@ -139,6 +140,7 @@ def forecast_inputs(day, strict=True, as_of=None):
     typical_pct = sum(abs(current["close"] / prior["close"] - 1) * 100
                       for prior, current in zip(window, window[1:])) / 10
     estimate = round(last["close"] * (1 + score * typical_pct / 100), 2)
+    spread = last["close"] * typical_pct / 100
     change = round(estimate - last["close"], 2)
     change_pct = round(100 * change / last["close"], 2)
     direction = "偏多" if change_pct > FLAT_PCT else "偏空" if change_pct < -FLAT_PCT else "震盪"
@@ -149,8 +151,9 @@ def forecast_inputs(day, strict=True, as_of=None):
     return {
         "direction": direction, "icon": ICONS[direction], "reason": reason,
         "risk": "海外收盤與台股開盤存在時間差，突發消息及開盤後資金流可能改變方向。",
-        "model_version": "projection-3", "flat_pct": FLAT_PCT,
+        "model_version": "projection-3.1", "flat_pct": FLAT_PCT,
         "base_date": last["date"], "base_close": last["close"], "estimated_close": estimate,
+        "estimated_range": {"low": round(max(0, estimate - spread), 2), "high": round(estimate + spread, 2)},
         "estimated_change": change, "estimated_change_pct": change_pct,
         "completeness": {"twse_sessions": len(window), "us_count": len(us),
                          "us_target": len(US), "day_futures_available": day_is_current,
@@ -163,6 +166,9 @@ def forecast_inputs(day, strict=True, as_of=None):
 
 def publish_outlook(now):
     day = forecast_day(now)
+    deadline = datetime.combine(day, LOCK, TZ) + timedelta(minutes=1)
+    if day == now.date() and now >= deadline:
+        return
     official = read("predictions.json")["rows"]
     if any(row["date"] == day.isoformat() for row in official):
         return
@@ -209,8 +215,9 @@ def lock_forecast(now):
     if any(r["date"] == day.isoformat() for r in book["rows"]):
         print("Existing record retained")
         return
-    if not cutoff <= now < datetime.combine(day, clock(9), TZ):
-        raise RuntimeError("Scheduled lock must execute between 08:45 and market open")
+    deadline = cutoff + timedelta(minutes=1)
+    if not cutoff <= now < deadline:
+        raise RuntimeError(f"08:45 lock window missed; actual execution {now.isoformat()}")
     if not (DATA / "forecast-snapshot.json").exists():
         raise RuntimeError("No saved pre-08:45 forecast snapshot")
     draft = read("forecast-snapshot.json")
@@ -219,10 +226,10 @@ def lock_forecast(now):
             or not cutoff - timedelta(minutes=5) <= captured < cutoff):
         raise RuntimeError("Saved forecast snapshot is outside today's pre-cutoff window")
     locked = datetime.now(TZ)
-    if not cutoff <= locked < datetime.combine(day, clock(9), TZ):
-        raise RuntimeError("Could not lock before market open")
+    if not cutoff <= locked < deadline:
+        raise RuntimeError(f"08:45 lock window missed; actual execution {locked.isoformat()}")
     forecast = {**draft, "time": "08:45", "status": "locked", "locked_at": locked.isoformat(),
-                "on_time": locked < cutoff + timedelta(minutes=1), "run_id": os.getenv("GITHUB_RUN_ID")}
+                "on_time": True, "run_id": os.getenv("GITHUB_RUN_ID")}
     book["rows"].append(forecast)
     write("predictions.json", book)
     print("Lock recorded", forecast["locked_at"], "from", draft["captured_at"])
@@ -233,6 +240,7 @@ def verify(close, previous, prediction):
     outcome = {"date": close["date"], "close": close["close"], "previous": previous,
                "change_pct": float(change), "source": close.get("source", CLOSE_SOURCE), "status": "unlocked"}
     if not prediction:
+        outcome["lock_status"] = "missed"
         return outcome
     captured, cutoff, locked = (datetime.fromisoformat(prediction[k])
                                 for k in ("captured_at", "cutoff_at", "locked_at"))
@@ -250,6 +258,15 @@ def verify(close, previous, prediction):
     correct = {"偏多": change > 0, "偏空": change < 0,
                "震盪": abs(change) <= Decimal(str(prediction["flat_pct"]))}[direction]
     outcome["status"] = "correct" if correct else "incorrect"
+    if prediction.get("estimated_close") is not None:
+        error = Decimal(str(close["close"])) - Decimal(str(prediction["estimated_close"]))
+        outcome["index_error_points"] = float(round(error, 2))
+    if prediction.get("estimated_change_pct") is not None:
+        error = change - Decimal(str(prediction["estimated_change_pct"]))
+        outcome["change_error_pp"] = float(round(error, 4))
+    interval = prediction.get("estimated_range")
+    if interval is not None:
+        outcome["range_hit"] = interval["low"] <= close["close"] <= interval["high"]
     return outcome
 
 
@@ -258,7 +275,10 @@ def stats(rows):
     def accuracy(sample):
         return sum(r["status"] == "correct" for r in sample) / len(sample) if sample else None
     correct = sum(r["status"] == "correct" for r in valid)
-    return {"valid": len(valid), "correct": correct, "incorrect": len(valid) - correct,
+    interval_samples = [r["range_hit"] for r in valid if isinstance(r.get("range_hit"), bool)]
+    return {"range_valid": len(interval_samples),
+            "range_accuracy": sum(interval_samples) / len(interval_samples) if interval_samples else None,
+            "valid": len(valid), "correct": correct, "incorrect": len(valid) - correct,
             "unlocked": sum(r["status"] == "unlocked" for r in rows),
             "late": sum(r["status"] == "late" for r in rows),
             "overall": accuracy(valid), "last5": accuracy(valid[-5:]), "last20": accuracy(valid[-20:])}
@@ -318,15 +338,30 @@ def publish_close(now):
     for prior, current in zip(rows, rows[1:]):
         if current["date"] == day and day >= START and day not in seen:
             try:
+                expected = adjacent_session(now.date(), -1).isoformat()
+                if prior["date"] != expected:
+                    raise ValueError(f"Missing official close for previous session {expected}")
                 outcome = verify(current, prior, predictions.get(day))
-            except (KeyError, ValueError, TypeError):
+            except (KeyError, ValueError, TypeError) as error:
                 outcome = {"date": day, "close": current["close"], "previous": prior,
-                           "status": "insufficient", "source": CLOSE_SOURCE}
+                           "status": "insufficient", "source": CLOSE_SOURCE, "detail": str(error)}
             results["rows"].append(outcome)
     results["rows"].sort(key=lambda r: r["date"])
     results["stats"] = stats(results["rows"])
     write("verification.json", results)
 
 
+def wait_until(now, local_time):
+    target = datetime.combine(now.date(), local_time, TZ)
+    if now < target:
+        time.sleep((target - now).total_seconds())
+
+
 if __name__ == "__main__":
-    {"capture": capture_forecast, "lock": lock_forecast, "close": publish_close, "outlook": publish_outlook}[sys.argv[1]](datetime.now(TZ))
+    mode = sys.argv[1]
+    now = datetime.now(TZ)
+    if mode in ("wait-capture", "wait-lock"):
+        wait_until(now, clock(8, 40) if mode == "wait-capture" else LOCK)
+    else:
+        {"capture": capture_forecast, "lock": lock_forecast, "close": publish_close,
+         "outlook": publish_outlook}[mode](now)

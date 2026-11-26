@@ -7,10 +7,8 @@ on:
       - scripts/market_cycle.py
       - .github/workflows/update-taiex.yml
   schedule:
-    - cron: '40 0 * * 1-5' # 08:40 Asia/Taipei
-    - cron: '42 0 * * 1-5' # retry before cutoff
+    - cron: '35 0 * * 1-5' # Warm up ahead of 08:40–08:45 Asia/Taipei
     - cron: '45 0 * * 1-5' # 08:45 Taipei: independent lock
-    - cron: '48 0 * * 1-5' # publish valid pre-cutoff snapshot if first lock was delayed
     - cron: '30,37,52 5 * * 1-5'
     - cron: '07,37 6,7 * * 1-5'
     - cron: '45 8 * * 1-5'
@@ -18,8 +16,9 @@ permissions:
   contents: write
 jobs:
   update:
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 9
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - name: Run scheduled market cycle
@@ -27,8 +26,8 @@ jobs:
           SCHEDULE: ${{ github.event.schedule }}
         run: |
           case "$SCHEDULE" in
-            '40 0 '*|'42 0 '*) mode=capture ;;
-            '45 0 '*|'48 0 '*) mode=lock ;;
+            '35 0 '*) mode=preopen ;;
+            '45 0 '*) mode=lock ;;
             *) mode=close ;;
           esac
           git config user.name 'github-actions[bot]'
@@ -36,7 +35,23 @@ jobs:
           for attempt in 1 2 3; do
             git fetch origin main
             git reset --hard origin/main
-            python scripts/market_cycle.py "$mode" || exit 1
+            if [ "$mode" = preopen ]; then
+              python scripts/market_cycle.py wait-capture || exit 1
+              git fetch origin main
+              git reset --hard origin/main
+              python scripts/market_cycle.py capture || exit 1
+              if [ -f data/forecast-snapshot.json ]; then git add data/forecast-snapshot.json; fi
+              if ! git diff --cached --quiet; then
+                git commit -m 'Record verified TWSE pre-open snapshot'
+                git push origin HEAD:main || { git pull --rebase origin main && git push origin HEAD:main; } || exit 1
+              fi
+              python scripts/market_cycle.py wait-lock || exit 1
+              git fetch origin main
+              git reset --hard origin/main
+              python scripts/market_cycle.py lock || exit 1
+            else
+              python scripts/market_cycle.py "$mode" || exit 1
+            fi
             git add -A data
             if git diff --cached --quiet; then exit 0; fi
             git commit -m "Record TWSE market cycle ($mode)"
