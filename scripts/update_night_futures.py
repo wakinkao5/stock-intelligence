@@ -211,9 +211,18 @@ def persist_report(path, result, now):
 def refresh_report(path, night):
     now = datetime.now(TAIPEI)
     build = build_report if night else build_regular_report
-    result = build(fetch(URL if night else regular_url()), fetch, now)
+    expect_today = not night and is_session(now.date()) and now.time() >= time(13, 45)
+    source = URL if night else regular_url()
+    if expect_today:
+        try:
+            result = build(fetch(regular_url(now.date())), fetch, now)
+        except (OSError, ValueError) as error:
+            print("Dated TAIFEX regular report not available:", error)
+            result = build(fetch(source), fetch, now)
+    else:
+        result = build(fetch(source), fetch, now)
     changed = persist_report(path, result, datetime.now(TAIPEI))
-    if not night and is_session(now.date()) and now.time() >= time(13, 45) and result["trade_date"] != now.date().isoformat():
+    if expect_today and result["trade_date"] != now.date().isoformat():
         return {"status": "pending", "quote_date": result["trade_date"],
                 "detail": "期交所尚未公布當日日盤正式行情"}
     return {"status": "updated" if changed else "unchanged", "quote_date": result["trade_date"]}

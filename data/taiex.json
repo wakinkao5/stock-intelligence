@@ -1,6 +1,6 @@
 {
   "source": "TWSE official FMTQIK daily market statistics",
-  "updated_at": "2026-11-26T14:09:55+08:00",
+  "updated_at": "2026-11-26T16:08:21+08:00",
   "history_start": "2026-01-01",
   "verified": true,
   "quarter_start": "2026-10-01",
@@ -1089,6 +1089,7 @@
     {
       "date": "2026-11-26",
       "close": 39151.81,
+      "trade_value": 837652988083,
       "source": "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&date=20261126&type=IND"
     }
   ]

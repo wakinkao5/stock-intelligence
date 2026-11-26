@@ -1,4 +1,4 @@
-const shell = 'stock-intelligence.shell.v3.18.1';
+const shell = 'stock-intelligence.shell.v3.18.1-release';
 const home = new URL('./index.html', self.registration.scope).href;
 self.addEventListener('install', event => {
  event.waitUntil(caches.open(shell).then(cache=>cache.add(new Request(home,{cache:'reload'}))).then(()=>self.skipWaiting()));
