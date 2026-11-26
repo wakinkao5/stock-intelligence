@@ -1,0 +1,42 @@
+name: Telegram notification test
+on:
+  workflow_dispatch:
+    inputs:
+      pairing_code:
+        description: 'Exact pairing message you sent to your bot'
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send private test notification
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          PAIRING_CODE: ${{ inputs.pairing_code }}
+        run: |
+          python - <<'PY'
+          import os, json, urllib.request
+          token = os.environ['TELEGRAM_BOT_TOKEN']
+          code = os.environ['PAIRING_CODE']
+          if not token or len(code) < 12:
+              raise SystemExit('Missing token or pairing code too short')
+          def call(method, data):
+              try:
+                  req = urllib.request.Request('https://api.telegram.org/bot'+token+'/'+method, data=json.dumps(data).encode(), headers={'Content-Type':'application/json'})
+                  with urllib.request.urlopen(req, timeout=20) as r:
+                      result = json.load(r)
+                  if not result.get('ok'):
+                      raise ValueError()
+                  return result['result']
+              except Exception:
+                  raise SystemExit('Telegram API request failed')
+          updates = call('getUpdates', {'limit':100})
+          chats = {u['message']['chat']['id'] for u in updates if 'message' in u and u['message']['chat']['type']=='private' and u['message'].get('text')==code}
+          if len(chats)!=1:
+              raise SystemExit('No unique matching private chat; send pairing code to bot again')
+          call('sendMessage', {'chat_id':chats.pop(), 'text':'台股情報中心｜Telegram 主動通知測試成功！此為連線測試，非即時行情。'})
+          print('Telegram notification sent successfully')
+          PY
