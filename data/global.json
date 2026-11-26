@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-26T18:16:10+08:00",
+  "updated_at": "2026-11-27T03:43:37+08:00",
   "note": "Delayed daily close; individual quote dates shown. Unavailable symbols retain prior verified date.",
   "rows": [
     {
@@ -135,5 +135,8 @@
       "source_url": "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&date=20261126&type=24"
     }
   ],
-  "source_errors": {}
+  "source_errors": {
+    "^N225": "來源回傳較舊的 2026-11-25，保留 2026-11-26 行情",
+    "^KS11": "來源回傳較舊的 2026-11-25，保留 2026-11-26 行情"
+  }
 }
