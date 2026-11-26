@@ -92,13 +92,17 @@ def prepare(now, slot, report):
                        if row["date"] == day and row.get("on_time") is True), None)
         provisional = optional("forecast-snapshot.json")
         forecast = locked or (provisional if slot == "08:40" and provisional.get("date") == day else {})
+        if slot == "08:40" and not forecast and now.strftime("%H:%M") < "08:45":
+            # A report can race the separate snapshot commit. Only estimate during the pre-open input window.
+            forecast = market.forecast_inputs(now.date(), strict=False, as_of=now)
+        forecast_status = "已鎖定" if locked else "盤前暫定" if forecast else "未鎖定"
         verification = next((x for x in market.read("verification.json")["rows"] if x["date"] == day), {})
         if slot == "16:00" and not verification:
             raise ValueError("今日正式收盤驗證紀錄尚未寫入")
         record = {"date": day, "slot": slot, "executed_at": stamp(now), "kind": kind, "quotes": quotes,
                   "international": international,
                   "forecast": {"direction": forecast.get("direction"), "estimated_close": forecast.get("estimated_close"),
-                               "status": "已鎖定" if locked else "盤前暫定" if forecast else "未鎖定"},
+                               "status": forecast_status},
                   "verification": VERIFICATION.get(verification.get("status"), "等待正式收盤")}
         if slot:
             path = snapshot_path(day, slot)

@@ -846,6 +846,13 @@ async function loadOfficial(manual=false){
   const refresh=await freshness;
   const lastSupported=marketCache.get('taiex.json')?.updated_at;
   reminderTime.textContent=taipeiTime(refresh?.last_success_at??lastSupported);
+  const lookup=(label,url)=>{
+   const link=textNode('a',label);
+   link.href=url;
+   link.target='_blank';
+   link.rel='noopener noreferrer';
+   return link;
+  };
   if(isCashSession(now)){
    if(latest){
     displayIntraday(latest,now);
@@ -854,17 +861,10 @@ async function loadOfficial(manual=false){
     status.append('｜盤中行情未更新：'+(refresh?.state==='failed'&&String(refresh.checked_at).startsWith(today)?
      refresh.reason:'尚無可公開展示的當日行情')+'｜資料可能過期｜');
    }
-   const lookup=(label,url)=>{
-    const link=textNode('a',label);
-    link.href=url;
-    link.target='_blank';
-    link.rel='noopener noreferrer';
-    return link;
-   };
-   status.append(lookup('證交所盤中行情','https://mis.twse.com.tw/'),'、',
+   status.append('｜',lookup('證交所盤中行情','https://mis.twse.com.tw/'),'、',
     lookup('櫃買中心盤中行情','https://www.tpex.org.tw/zh-tw/index.html'));
-   if(manual)status.append('｜',lookup('站主啟動後台更新','https://github.com/wakinkao5/stock-intelligence/actions/workflows/update-global.yml'));
   }
+  if(manual)status.append('｜',lookup('站主啟動後台更新','https://github.com/wakinkao5/stock-intelligence/actions/workflows/update-global.yml'));
   await loadReports(today);
   renderInternationalSummary();
   if(window.forecastRows){
