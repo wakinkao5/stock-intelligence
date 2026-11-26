@@ -1,14 +1,14 @@
 {
-  "updated_at": "2026-11-26T01:56:06+08:00",
+  "updated_at": "2026-11-26T09:44:58+08:00",
   "note": "Delayed daily close; individual quote dates shown. Unavailable symbols retain prior verified date.",
   "rows": [
     {
       "name": "NASDAQ",
       "symbol": "^IXIC",
-      "date": "2026-11-24",
-      "close": 23733.5391,
-      "change": -356.0215,
-      "change_pct": -1.48,
+      "date": "2026-11-25",
+      "close": 23585.8027,
+      "change": -147.7363,
+      "change_pct": -0.62,
       "exchange_timezone": "America/New_York",
       "session_complete": true,
       "source": "Yahoo Finance 延遲日線",
@@ -17,10 +17,10 @@
     {
       "name": "費城半導體",
       "symbol": "^SOX",
-      "date": "2026-11-24",
-      "close": 8832.5,
-      "change": -755.5498,
-      "change_pct": -7.88,
+      "date": "2026-11-25",
+      "close": 8774.8623,
+      "change": -57.6377,
+      "change_pct": -0.65,
       "exchange_timezone": "America/New_York",
       "session_complete": true,
       "source": "Yahoo Finance 延遲日線",
@@ -65,10 +65,10 @@
     {
       "name": "道瓊工業指數",
       "symbol": "^DJI",
-      "date": "2026-11-24",
-      "close": 50018.6992,
-      "change": 423.3906,
-      "change_pct": 0.85,
+      "date": "2026-11-25",
+      "close": 50182.9492,
+      "change": 164.25,
+      "change_pct": 0.33,
       "exchange_timezone": "America/New_York",
       "session_complete": true,
       "source": "Yahoo Finance 延遲日線",
@@ -77,10 +77,10 @@
     {
       "name": "S&P 500",
       "symbol": "^GSPC",
-      "date": "2026-11-24",
-      "close": 7201.0898,
-      "change": -36.0801,
-      "change_pct": -0.5,
+      "date": "2026-11-25",
+      "close": 7182.7798,
+      "change": -18.3101,
+      "change_pct": -0.25,
       "exchange_timezone": "America/New_York",
       "session_complete": true,
       "source": "Yahoo Finance 延遲日線",
@@ -136,6 +136,8 @@
     }
   ],
   "source_errors": {
+    "NVDA": "更新失敗",
+    "TSM": "更新失敗",
     "^N225": "更新失敗",
     "^KS11": "更新失敗"
   }
