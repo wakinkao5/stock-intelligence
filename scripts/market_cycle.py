@@ -237,6 +237,7 @@ def verify(close, previous, prediction):
     outcome = {"date": close["date"], "close": close["close"], "previous": previous,
                "change_pct": float(change), "source": close.get("source", CLOSE_SOURCE), "status": "unlocked"}
     if not prediction:
+        outcome["lock_status"] = "missed"
         return outcome
     captured, cutoff, locked = (datetime.fromisoformat(prediction[k])
                                 for k in ("captured_at", "cutoff_at", "locked_at"))

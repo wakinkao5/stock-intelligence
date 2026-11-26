@@ -839,7 +839,7 @@ async function renderNextForecast(rows,manual){
  byId('verification-today').textContent=!isWeekday&&pending?'今日休市':pending?'等待今日正式收盤｜'+
   (todayOfficial?.direction??(now>=deadline?(predictions?'08:45 鎖定失敗，不列入準確率':'正式紀錄待查'):'等待 08:45 鎖定')):
   today+' 收盤 '+latest.close.toLocaleString('zh-TW',{minimumFractionDigits:2})+'｜'+
-  (checked?.direction??todayOfficial?.direction??'')+' '+(labels[checked?.status]??
+  (checked?.direction??todayOfficial?.direction??'')+' '+(checked?.lock_status==='missed'?'08:45 鎖定失敗，不列入準確率':labels[checked?.status]??
   (!verification?'驗證資料讀取失敗':!todayOfficial?'未鎖定，不列入準確率':'等待驗證'));
  const errors=[];
  if(Number.isFinite(checked?.index_error_points))errors.push('指數誤差 '+thousands(Math.abs(checked.index_error_points))+' 點');
