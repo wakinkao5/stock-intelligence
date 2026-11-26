@@ -76,6 +76,11 @@ def prepare(now, slot, report):
                             datetime.fromisoformat(f"{day}T{slot}:00+08:00") for quote in quotes):
                 raise ValueError("執行延遲，最新報價晚於原定時段")
         else:
+            if now.strftime("%H:%M") >= "13:50":
+                try:
+                    update_intraday.refresh_final_chart(now)
+                except (OSError, ValueError, KeyError, TypeError):
+                    print("已授權富果完整分時圖尚未取得")
             quote_day = day if now.strftime("%H:%M") >= "13:30" else market.adjacent_session(now.date(), -1).isoformat()
             if slot == "08:40" and now.strftime("%H:%M") >= "09:00":
                 raise ValueError("開盤後不得補作盤前速報")

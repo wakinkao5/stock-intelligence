@@ -137,7 +137,7 @@ def store_quotes(book, updates, now):
         if isinstance(item, Exception):
             results[symbol] = {"status": "error", "detail": str(item), "retained": (old or {}).get("date")}
         elif old and item["date"] < old["date"]:
-            results[symbol] = {"status": "error", "detail": "older source data rejected",
+            results[symbol] = {"status": "retained" if old.get("session_complete") is True else "error", "detail": "older source data rejected",
                                "received": item["date"], "retained": old["date"]}
         else:
             previous[symbol] = item
@@ -145,7 +145,7 @@ def store_quotes(book, updates, now):
     rows = list(previous.values())
     errors = {}
     for symbol, result in results.items():
-        if result["status"] != "error":
+        if result["status"] not in ("error", "retained"):
             continue
         detail = result["detail"]
         if result.get("received"):

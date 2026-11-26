@@ -14,6 +14,7 @@ on:
     - cron: '0 2 * * 1-5'  # 10:00 Taipei
     - cron: '0 5 * * 1-5'  # 13:00 Taipei
     - cron: '0 8 * * 1-5'  # 16:00 Taipei
+    - cron: '50 5 * * 1-5' # Recheck official TX day settlement after the close
 permissions:
   contents: write
   actions: read
@@ -52,7 +53,8 @@ jobs:
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          export SLOT_RUN_CREATED="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at)"
+          SLOT_RUN_CREATED="$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at)" || exit 1
+          export SLOT_RUN_CREATED
           for attempt in 1 2 3; do
             git fetch origin main
             git reset --hard origin/main

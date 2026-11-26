@@ -1,6 +1,8 @@
 """Publish the official completed TX night report after settlement reconciliation."""
 import json
 import re
+import time as retry_clock
+import urllib.error
 import urllib.parse
 import urllib.request
 from datetime import date, datetime, time, timedelta
@@ -48,8 +50,14 @@ class TableReader(HTMLParser):
 
 def fetch(url):
     request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(request, timeout=25) as response:
-        return response.read().decode("utf-8")
+    for attempt in range(2):
+        try:
+            with urllib.request.urlopen(request, timeout=12) as response:
+                return response.read().decode("utf-8")
+        except (TimeoutError, urllib.error.URLError):
+            if attempt:
+                raise
+            retry_clock.sleep(2)
 
 
 def parse_report(html, night):
@@ -205,6 +213,9 @@ def refresh_report(path, night):
     build = build_report if night else build_regular_report
     result = build(fetch(URL if night else regular_url()), fetch, now)
     changed = persist_report(path, result, datetime.now(TAIPEI))
+    if not night and is_session(now.date()) and now.time() >= time(13, 45) and result["trade_date"] != now.date().isoformat():
+        return {"status": "pending", "quote_date": result["trade_date"],
+                "detail": "期交所尚未公布當日日盤正式行情"}
     return {"status": "updated" if changed else "unchanged", "quote_date": result["trade_date"]}
 
 

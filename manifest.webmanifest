@@ -1,0 +1,10 @@
+{
+  "id": "./",
+  "name": "台股智慧決策中心",
+  "short_name": "台股智慧",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f6fa",
+  "theme_color": "#f3f6fa"
+}
