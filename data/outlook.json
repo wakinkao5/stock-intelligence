@@ -1,21 +1,21 @@
 {
   "direction": "偏空",
   "icon": "🌧️",
-  "reason": "；上一交易日收盤 38,195.43；台股近 5 日 -4.97%、近 10 日 -13.70%；臺指期日盤 -5.61%；當日夜盤日報尚缺",
+  "reason": "NASDAQ -0.62%、費城半導體 -0.65%；上一交易日收盤 38,195.43；台股近 5 日 -4.97%、近 10 日 -13.70%；臺指期日盤 -5.61%；臺指期夜盤 +0.72%",
   "risk": "海外收盤與台股開盤存在時間差，突發消息及開盤後資金流可能改變方向。",
   "model_version": "projection-3",
   "flat_pct": 0.3,
   "base_date": "2026-11-25",
   "base_close": 38195.43,
-  "estimated_close": 36703.44,
-  "estimated_change": -1491.99,
-  "estimated_change_pct": -3.91,
+  "estimated_close": 37006.89,
+  "estimated_change": -1188.54,
+  "estimated_change_pct": -3.11,
   "completeness": {
     "twse_sessions": 11,
-    "us_count": 0,
+    "us_count": 2,
     "us_target": 4,
     "day_futures_available": true,
-    "overnight_available": false
+    "overnight_available": true
   },
   "inputs": {
     "twse": {
@@ -79,7 +79,32 @@
         }
       ]
     },
-    "us": [],
+    "us": [
+      {
+        "name": "NASDAQ",
+        "symbol": "^IXIC",
+        "date": "2026-11-25",
+        "close": 23585.8027,
+        "change": -147.7363,
+        "change_pct": -0.62,
+        "exchange_timezone": "America/New_York",
+        "session_complete": true,
+        "source": "Yahoo Finance 延遲日線",
+        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EIXIC?range=10d&interval=1d"
+      },
+      {
+        "name": "費城半導體",
+        "symbol": "^SOX",
+        "date": "2026-11-25",
+        "close": 8774.8623,
+        "change": -57.6377,
+        "change_pct": -0.65,
+        "exchange_timezone": "America/New_York",
+        "session_complete": true,
+        "source": "Yahoo Finance 延遲日線",
+        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5ESOX?range=10d&interval=1d"
+      }
+    ],
     "day_futures": {
       "symbol": "TX",
       "contract": "202612",
@@ -97,9 +122,25 @@
       "settlement_source_url": "https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=0&commodity_id=TX&queryDate=2026%2F11%2F24",
       "updated_at": "2026-11-25T15:23:03+08:00"
     },
-    "night": null
+    "night": {
+      "symbol": "TX",
+      "contract": "202612",
+      "trade_date": "2026-11-26",
+      "session_start": "2026-11-25T15:00:00+08:00",
+      "session_end": "2026-11-26T05:00:00+08:00",
+      "last": 38397,
+      "change": 274,
+      "change_pct": 0.72,
+      "reference_settlement": 38123,
+      "verified": true,
+      "source": "TAIFEX",
+      "quote_type": "official_after_hours_daily_report",
+      "source_url": "https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=1",
+      "settlement_source_url": "https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=0&commodity_id=TX&queryDate=2026%2F11%2F25",
+      "updated_at": "2026-11-26T09:44:59+08:00"
+    }
   },
   "date": "2026-11-26",
   "status": "provisional",
-  "generated_at": "2026-11-26T01:56:32+08:00"
+  "generated_at": "2026-11-26T09:45:02+08:00"
 }
