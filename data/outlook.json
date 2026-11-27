@@ -1,19 +1,19 @@
 {
-  "direction": "偏空",
-  "icon": "⛈️",
-  "reason": "NASDAQ -0.62%、費城半導體 -0.65%、NVIDIA -3.91%、台積電 ADR -1.96%；上一交易日收盤 39,308.08；台股近 5 日 +9.09%、近 10 日 -10.00%；臺指期日盤 -0.33%；當日夜盤日報尚缺；亞股 香港恆生指數 2026-11-27 +2.11%；聯準會公告 2026-11-24，留意利率預期與科技股估值變化",
+  "direction": "偏多",
+  "icon": "☀️",
+  "reason": "NASDAQ +2.31%、費城半導體 +4.69%、NVIDIA +0.80%、台積電 ADR +3.21%；上一交易日收盤 39,308.08；台股近 5 日 +9.09%、近 10 日 -10.00%；臺指期日盤 -0.33%；當日夜盤日報尚缺",
   "risk": "海外收盤與台股開盤存在時間差，突發消息及開盤後資金流可能改變方向。",
   "model_version": "projection-4.1",
   "flat_pct": 0.3,
   "base_date": "2026-11-27",
   "base_close": 39308.08,
-  "estimated_close": 38501.89,
+  "estimated_close": 40253.5,
   "estimated_range": {
-    "low": 37004.78,
-    "high": 39999.0
+    "low": 38756.39,
+    "high": 41750.61
   },
-  "estimated_change": -806.19,
-  "estimated_change_pct": -2.05,
+  "estimated_change": 945.42,
+  "estimated_change_pct": 2.41,
   "completeness": {
     "twse_sessions": 11,
     "us_count": 4,
@@ -89,77 +89,62 @@
       {
         "name": "NASDAQ",
         "symbol": "^IXIC",
-        "date": "2026-11-25",
-        "close": 23585.8008,
-        "change": -147.7383,
-        "change_pct": -0.62,
+        "date": "2026-11-27",
+        "close": 24129.5,
+        "change": 543.6992,
+        "change_pct": 2.31,
         "exchange_timezone": "America/New_York",
         "session_complete": true,
         "source": "Yahoo Finance 延遲日線",
         "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EIXIC?range=10d&interval=1d",
-        "updated_at": "2026-11-27T19:29:44+08:00"
+        "session_end": "2026-11-27T13:00:00-05:00",
+        "updated_at": "2026-11-28T04:21:32+08:00"
       },
       {
         "name": "費城半導體",
         "symbol": "^SOX",
-        "date": "2026-11-25",
-        "close": 8774.8604,
-        "change": -57.6396,
-        "change_pct": -0.65,
+        "date": "2026-11-27",
+        "close": 9186.7061,
+        "change": 411.8457,
+        "change_pct": 4.69,
         "exchange_timezone": "America/New_York",
         "session_complete": true,
         "source": "Yahoo Finance 延遲日線",
         "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5ESOX?range=10d&interval=1d",
-        "updated_at": "2026-11-27T19:29:44+08:00"
+        "session_end": "2026-11-27T13:00:00-05:00",
+        "updated_at": "2026-11-28T04:21:32+08:00"
       },
       {
         "name": "NVIDIA",
         "symbol": "NVDA",
-        "date": "2026-11-25",
-        "close": 149.3,
-        "change": -6.08,
-        "change_pct": -3.91,
+        "date": "2026-11-27",
+        "close": 150.49,
+        "change": 1.19,
+        "change_pct": 0.8,
         "exchange_timezone": "America/New_York",
         "session_complete": true,
         "source": "Yahoo Finance 延遲日線",
         "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/NVDA?range=10d&interval=1d",
-        "updated_at": "2026-11-27T19:29:44+08:00"
+        "session_end": "2026-11-27T13:00:00-05:00",
+        "updated_at": "2026-11-28T04:21:32+08:00"
       },
       {
         "name": "台積電 ADR",
         "symbol": "TSM",
-        "date": "2026-11-25",
-        "close": 342.34,
-        "change": -6.86,
-        "change_pct": -1.96,
+        "date": "2026-11-27",
+        "close": 353.34,
+        "change": 11.0,
+        "change_pct": 3.21,
         "exchange_timezone": "America/New_York",
         "session_complete": true,
         "source": "Yahoo Finance 延遲日線",
         "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/TSM?range=10d&interval=1d",
-        "updated_at": "2026-11-27T19:29:44+08:00"
+        "session_end": "2026-11-27T13:00:00-05:00",
+        "updated_at": "2026-11-28T04:21:32+08:00"
       }
     ],
-    "asia": [
-      {
-        "name": "香港恆生指數",
-        "symbol": "^HSI",
-        "date": "2026-11-27",
-        "close": 22694.7695,
-        "change": 467.8887,
-        "change_pct": 2.11,
-        "exchange_timezone": "Asia/Hong_Kong",
-        "session_complete": true,
-        "source": "Yahoo Finance 延遲日線",
-        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EHSI?range=10d&interval=1d",
-        "session_end": "2026-11-27T16:10:00+08:00",
-        "updated_at": "2026-11-27T19:29:44+08:00"
-      }
-    ],
-    "news": {
-      "title": "Minutes of the Board's discount rate meetings on October 19 and October 28, 2026",
-      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261124a.htm",
-      "published_at": "2026-11-24T19:00:00+00:00"
-    },
+    "asia": [],
+    "news": null,
     "day_futures": {
       "symbol": "TX",
       "contract": "202612",
@@ -181,5 +166,5 @@
   },
   "date": "2026-11-30",
   "status": "provisional",
-  "generated_at": "2026-11-27T23:39:26+08:00"
+  "generated_at": "2026-11-28T04:21:35+08:00"
 }
