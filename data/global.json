@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-27T18:43:19+08:00",
+  "updated_at": "2026-11-27T19:28:41+08:00",
   "note": "Delayed daily close; individual quote dates shown. Unavailable symbols retain prior verified date.",
   "rows": [
     {
@@ -135,7 +135,5 @@
       "source_url": "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&date=20261127&type=24"
     }
   ],
-  "source_errors": {
-    "TPEX": "行情來源未回傳有效報價"
-  }
+  "source_errors": {}
 }
