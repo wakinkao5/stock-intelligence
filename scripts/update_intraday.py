@@ -3,6 +3,7 @@ import json
 import math
 import os
 import urllib.request
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
 
@@ -54,6 +55,8 @@ def refresh_final_chart(now):
     path = market.DATA / "intraday.json"
     existing = market.read(path.name) if path.exists() else {}
     if existing.get("date") == day and existing.get("chart_complete"):
+        if not (market.DATA / "intraday-complete.json").exists():
+            market.write("intraday-complete.json", existing)
         return
     series = delayed_series(candle_report(SYMBOLS["TAIEX"], token), SYMBOLS["TAIEX"], day, cutoff, include_ohlc=True)
     if len(series) != 271 or series[0][1]["at"][11:16] != "09:00" or series[-1][1]["at"][11:16] != "13:30":
@@ -63,6 +66,7 @@ def refresh_final_chart(now):
                      delay_minutes=delay, retrieved_at=datetime.now(market.TZ).isoformat(),
                      source="富果 Fugle 延遲分 K")
     market.write(path.name, next_book)
+    market.write("intraday-complete.json", next_book)
 
 
 def refresh(now, previous, global_data):
@@ -81,22 +85,66 @@ def refresh(now, previous, global_data):
     for row in global_data["rows"]:
         if row["symbol"] in ("TPEX", "2330") and row["date"] == previous_session:
             prior[row["symbol"]] = row["close"]
-    quotes, points = [], []
-    for key, code in SYMBOLS.items():
-        if key not in prior or not math.isfinite(prior[key]) or prior[key] <= 0:
-            raise ValueError(f"{key} 缺少前一交易日正式收盤")
+    def fetch_symbol(key, code):
+        previous_close = prior.get(key)
+        if not previous_close or not math.isfinite(previous_close):
+            return None, [], None
         try:
             payload = candle_report(code, token)
-            series = delayed_series(payload, code, day, cutoff)
-            if key == "TAIEX":
-                points = [row for _, row in delayed_series(payload, code, day, cutoff, include_ohlc=True)]
-        except (OSError, KeyError, TypeError, ValueError) as error:
-            status = getattr(error, "code", None)
-            raise RuntimeError(f"{key} 富果行情查詢失敗" + (f"（HTTP {status}）" if status else "")) from None
-        if not series or cutoff - series[-1][0] > timedelta(minutes=10):
-            raise ValueError(f"{key} 未取得合規延遲窗口內的當日行情")
-        stamp, value = series[-1]
-        quotes.append({"symbol": key, "value": value, "quote_at": stamp.isoformat(),
-                       "change_pct": round((value / prior[key] - 1) * 100, 2)})
-    return {"date": day, "retrieved_at": datetime.now(market.TZ).isoformat(),
-            "source": "富果 Fugle 延遲分 K", "delay_minutes": delay, "quotes": quotes, "points": points}
+            candles = delayed_series(payload, code, day, cutoff, include_ohlc=True)
+        except (OSError, KeyError, TypeError, ValueError):
+            return None, [], None
+        if not candles:
+            return None, [], None
+        stamp, last = candles[-1]
+        value = last["value"]
+        quote = {"symbol": key, "value": value, "quote_at": stamp.isoformat(),
+                 "change": round(value - previous_close, 2),
+                 "change_pct": round((value / previous_close - 1) * 100, 2)}
+        points = [point for _, point in candles] if key == "TAIEX" else []
+        amount = None
+        if points:
+            eligible = {point["at"] for point in points}
+            volumes = [row.get("volume") for row in payload["data"]
+                       if datetime.fromisoformat(row["date"]).astimezone(market.TZ).isoformat() in eligible]
+            if (len(volumes) == len(points) and points[0]["at"][11:16] == "09:00"
+                    and stamp - candles[0][0] == timedelta(minutes=len(points) - 1)
+                    and all(isinstance(volume, (int, float)) and math.isfinite(volume) and volume >= 0
+                            for volume in volumes)):
+                amount = sum(volumes)
+        return quote, points, amount
+
+    with ThreadPoolExecutor(max_workers=len(SYMBOLS)) as pool:
+        tasks = [pool.submit(fetch_symbol, key, code) for key, code in SYMBOLS.items()]
+        results = [task.result() for task in tasks]
+    quotes = [quote for quote, _, _ in results if quote]
+    if not quotes:
+        raise ValueError("富果未取得可驗證的當日延遲行情")
+    _, points, amount = results[0]
+    result = {"date": day, "retrieved_at": datetime.now(market.TZ).isoformat(),
+              "source": "富果 Fugle 延遲分 K", "delay_minutes": delay, "quotes": quotes, "points": points}
+    if amount is not None:
+        result["trade_value"] = amount
+    return result
+
+
+def save_intraday(series):
+    name = "intraday.json"
+    old = market.read(name) if (market.DATA / name).exists() else {}
+    if old.get("date", "") > series["date"]:
+        return
+    if old.get("date") == series["date"]:
+        quotes = {row["symbol"]: row for row in old["quotes"]}
+        for row in series["quotes"]:
+            symbol = row["symbol"]
+            if row["quote_at"] >= quotes.get(symbol, {}).get("quote_at", ""):
+                quotes[symbol] = row
+        series["quotes"] = list(quotes.values())
+        old_points, new_points = old["points"], series["points"]
+        if old_points and (old.get("chart_complete") or not new_points or old_points[-1]["at"] > new_points[-1]["at"]):
+            series["points"] = old_points
+            if "trade_value" in old:
+                series["trade_value"] = old["trade_value"]
+        if old.get("chart_complete"):
+            series["chart_complete"] = True
+    market.write(name, series)

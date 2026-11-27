@@ -28,6 +28,21 @@ class ForecastLockTests(TestCase):
         })
         self.clock = self.enterContext(patch.object(cycle, "datetime", wraps=datetime))
 
+    def test_0840_slot_preserves_first_forecast_and_verifies(self):
+        self.clock.now.return_value = taipei_at("08:41:00")
+        draft = {"direction": "偏多", "flat_pct": .30, "estimated_close": 10100,
+                 "estimated_change_pct": 1.0, "estimated_range": {"low": 10050, "high": 10150}}
+        with patch.object(cycle, "forecast_inputs", return_value=draft) as calculate:
+            first = cycle.publish_morning_slot(taipei_at("08:40:50"))
+            repeated = cycle.publish_morning_slot(taipei_at("08:44:00"))
+        self.assertEqual(first, repeated)
+        calculate.assert_called_once()
+        self.assertEqual(cycle.read("predictions.json")["rows"], [first])
+        result = cycle.verify({"date": DAY, "close": 10110}, {"close": 10000}, first)
+        self.assertEqual(result["status"], "correct")
+        self.assertEqual(result["index_error_points"], 10)
+        self.assertTrue(result["range_hit"])
+
     def test_late_run_and_elapsed_deadline_leave_book_empty(self):
         self.clock.now.return_value = taipei_at("08:46:00")
         for invoked_at in ("08:45:59", "08:46:00", "09:00:00"):

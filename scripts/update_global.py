@@ -22,6 +22,7 @@ SYMBOLS = [
     ("台積電 ADR", "TSM", "America/New_York", "16:00"),
     ("日經 225", "^N225", "Asia/Tokyo", "15:30"),
     ("韓國 KOSPI", "^KS11", "Asia/Seoul", "15:30"),
+    ("香港恆生指數", "^HSI", "Asia/Hong_Kong", "16:00"),
 ]
 STOCKS = {"2330": "台積電"}
 TPEX = "https://www.tpex.org.tw/openapi/v1/tpex_index"
@@ -60,9 +61,17 @@ def fetch_global(name, symbol, zone, close_at, now, previous):
             series = market_cycle.fetch(url)["chart"]["result"][0]
             timezone = market_cycle.ZoneInfo(zone)
             (_, prior), (day, close) = completed_bars(series, symbol, timezone, close_at, now)
+            session_end = None
+            regular_end = series["meta"].get("currentTradingPeriod", {}).get("regular", {}).get("end")
+            if isinstance(regular_end, int):
+                provider_end = dt.datetime.fromtimestamp(regular_end, timezone)
+                if provider_end.date() == day:
+                    session_end = provider_end.isoformat()
             item = {"name": name, "symbol": symbol, "date": day.isoformat(), "close": round(close, 4),
                     "change": round(close - prior, 4), "change_pct": round(100 * (close / prior - 1), 2), "exchange_timezone": zone,
                     "session_complete": True, "source": "Yahoo Finance 延遲日線", "source_url": url}
+            if session_end:
+                item["session_end"] = session_end
             candidates.append(item)
             previous_date = previous.get("date", "")
             market_day = now.astimezone(timezone).date()
@@ -140,6 +149,11 @@ def store_quotes(book, updates, now):
             results[symbol] = {"status": "retained" if old.get("session_complete") is True else "error", "detail": "older source data rejected",
                                "received": item["date"], "retained": old["date"]}
         else:
+            if old and item["date"] == old["date"]:
+                item = {**old, **item}
+            if not old or {key: value for key, value in item.items() if key != "updated_at"} != {
+                    key: value for key, value in old.items() if key != "updated_at"} or not old.get("updated_at"):
+                item["updated_at"] = now.isoformat(timespec="seconds")
             previous[symbol] = item
             results[symbol] = {"status": "unchanged" if old == item else "updated", "quote_date": item["date"]}
     rows = list(previous.values())

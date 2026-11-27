@@ -133,6 +133,18 @@
       "exchange_timezone": "Asia/Taipei",
       "source": "證交所正式收盤",
       "source_url": "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&date=20261127&type=24"
+    },
+    {
+      "name": "香港恆生指數",
+      "symbol": "^HSI",
+      "date": "2026-11-26",
+      "close": 22226.88,
+      "change": 260.87,
+      "change_pct": 1.19,
+      "exchange_timezone": "Asia/Hong_Kong",
+      "session_complete": true,
+      "source": "Financial Times 延遲日線",
+      "source_url": "https://markets.ft.markitdigital.com/data/indices/tearsheet/historical?s=HSI%3AHKG"
     }
   ],
   "source_errors": {}

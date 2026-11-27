@@ -64,12 +64,17 @@ def prepare(now, slot, report):
               "state": "failed", "last_success_at": previous_status.get("last_success_at")}
     try:
         history, global_data = market.read("taiex.json"), market.read("global.json")
+        if slot == "08:40":
+            try:
+                market.publish_morning_slot(now)
+            except (OSError, RuntimeError, ValueError, KeyError, TypeError):
+                print("08:40 forecast inputs unavailable before cutoff")
         intraday = slot in ("10:00", "13:00") or (not slot and "09:00" <= now.strftime("%H:%M") < "13:30")
         if intraday:
             if not "09:00" <= now.strftime("%H:%M") < "13:30":
                 raise ValueError("盤中時段已結束，無法還原原定時段的行情快照")
             series = update_intraday.refresh(now, history["rows"][-1], global_data)
-            market.write("intraday.json", series)
+            update_intraday.save_intraday(series)
             quotes = [{**row, "source": series["source"]} for row in series["quotes"]]
             kind = f"盤中延遲至少 {series['delay_minutes']} 分鐘"
             if slot and any(datetime.fromisoformat(quote["quote_at"]) >
@@ -104,10 +109,20 @@ def prepare(now, slot, report):
         verification = next((x for x in market.read("verification.json")["rows"] if x["date"] == day), {})
         if slot == "16:00" and not verification:
             raise ValueError("今日正式收盤驗證紀錄尚未寫入")
+        observation = None
+        if slot in ("10:00", "13:00"):
+            index = next((quote for quote in quotes if quote["symbol"] == "TAIEX"), None)
+            if index and locked:
+                change = index["change_pct"]
+                direction = "偏多" if change > locked["flat_pct"] else "偏空" if change < -locked["flat_pct"] else "震盪"
+                observation = f"盤中觀察：加權指數 {change:+.2f}%，{direction}。盤前原判 {locked['direction']}。"
+            elif index:
+                observation = f"盤中觀察：加權指數 {index['change_pct']:+.2f}%。盤前原始預測未鎖定。"
         record = {"date": day, "slot": slot, "executed_at": stamp(now), "kind": kind, "quotes": quotes,
-                  "international": international,
+                  "international": international, "observation": observation,
                   "forecast": {"direction": forecast.get("direction"), "estimated_close": forecast.get("estimated_close"),
-                               "status": forecast_status},
+                               "estimated_range": forecast.get("estimated_range"),
+                               "estimated_change_pct": forecast.get("estimated_change_pct"), "status": forecast_status},
                   "verification": VERIFICATION.get(verification.get("status"), "等待正式收盤")}
         if slot:
             path = snapshot_path(day, slot)

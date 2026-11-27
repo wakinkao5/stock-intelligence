@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 import market_cycle as market
 import stock_notifications as notifications
-from update_intraday import delayed_series, refresh
+from update_intraday import delayed_series, refresh, save_intraday
 
 
 class PublicationTests(TestCase):
@@ -26,6 +26,20 @@ class PublicationTests(TestCase):
             with self.assertRaisesRegex(ValueError, "公開展示授權"):
                 refresh(None, None, None)
             request.assert_not_called()
+
+    def test_partial_refresh_preserves_verified_chart_and_other_market_quote(self):
+        existing = {"date": "2026-11-26", "chart_complete": True,
+                    "points": [{"at": "2026-11-26T13:30:00+08:00", "value": 100}],
+                    "quotes": [{"symbol": "TAIEX", "quote_at": "2026-11-26T13:31:00+08:00", "value": 100}]}
+        partial = {"date": "2026-11-26", "points": [],
+                   "quotes": [{"symbol": "TPEX", "quote_at": "2026-11-26T13:31:00+08:00", "value": 99}]}
+        with TemporaryDirectory() as directory, patch.object(market, "DATA", Path(directory)):
+            market.write("intraday.json", existing)
+            save_intraday(partial)
+            stored = market.read("intraday.json")
+            self.assertEqual(stored["points"], existing["points"])
+            self.assertTrue(stored["chart_complete"])
+            self.assertEqual({row["symbol"] for row in stored["quotes"]}, {"TAIEX", "TPEX"})
 
     def test_shared_report_and_alert_are_independent_of_telegram_credentials(self):
         report = {"date": "2026-11-26", "slot": "10:00", "executed_at": "2026-11-26T10:02:00+08:00",

@@ -24,6 +24,8 @@ LOCK = clock(8, 45)
 FLAT_PCT = 0.30
 ICONS = {"偏多": "🌤️", "偏空": "🌧️", "震盪": "☁️"}
 US = ("^IXIC", "^SOX", "NVDA", "TSM")
+ASIA = ("^N225", "^KS11", "^HSI")
+MORNING_SLOT = clock(8, 40)
 
 
 def read(name):
@@ -114,7 +116,7 @@ def forecast_inputs(day, strict=True, as_of=None):
     global_data = read("global.json")
     quotes = {r["symbol"]: r for r in global_data["rows"]
               if r.get("session_complete") and not r.get("stale") and math.isfinite(r["change_pct"])}
-    expected_us = previous_us_session((as_of.date() if as_of else day))
+    expected_us = previous_us_session(as_of.date() if as_of else day)
     us = [quotes[symbol] for symbol in US if symbol in quotes and quotes[symbol]["date"] == expected_us]
     if strict and len(us) != len(US):
         raise RuntimeError(f"Required completed US session {expected_us} unavailable for all four inputs")
@@ -136,6 +138,19 @@ def forecast_inputs(day, strict=True, as_of=None):
         score = .90 * score + .10 * max(-1, min(1, regular["change_pct"] / 2))
     if night_is_current:
         score = .85 * score + .15 * max(-1, min(1, night["change_pct"] / 2))
+    previous_asia = previous - timedelta(days=3)
+    asia = [quotes[symbol] for symbol in ASIA if symbol in quotes
+            and previous_asia.isoformat() <= quotes[symbol]["date"] <= previous.isoformat()
+            and symbol not in global_data.get("source_errors", {})]
+    if len(asia) >= 2:
+        signal = sum(max(-1, min(1, row["change_pct"] / 2)) for row in asia) / len(asia)
+        score = .92 * score + .08 * signal
+    if len(us) < 2 and len(asia) < 2 and not night_is_current:
+        raise RuntimeError("有效海外行情與台指期夜盤不足，暫不估算點數")
+    news = read("market-news.json") if (DATA / "market-news.json").exists() else {}
+    recent_event = next((item for item in news.get("items", []) if
+                         timedelta(0) <= (as_of or datetime.now(TZ)) - datetime.fromisoformat(item["published_at"])
+                         <= timedelta(days=3)), None)
     window = closes[-11:]
     typical_pct = sum(abs(current["close"] / prior["close"] - 1) * 100
                       for prior, current in zip(window, window[1:])) / 10
@@ -148,10 +163,15 @@ def forecast_inputs(day, strict=True, as_of=None):
     reason += f"；上一交易日收盤 {last['close']:,.2f}；台股近 5 日 {momentum[5]:+.2f}%、近 10 日 {momentum[10]:+.2f}%"
     reason += f"；臺指期日盤 {regular['change_pct']:+.2f}%" if day_is_current else "；前一交易日日盤報表尚缺"
     reason += f"；臺指期夜盤 {night['change_pct']:+.2f}%" if night_is_current else "；當日夜盤日報尚缺"
+    if asia:
+        reason += "；亞股 " + "、".join(f"{r['name']} {r['date']} {r['change_pct']:+.2f}%" for r in asia)
+    if recent_event:
+        reason += f"；聯準會公告 {recent_event['published_at'][:10]}，留意利率預期與科技股估值變化"
+    icon = "☀️" if change_pct >= 1 else "⛈️" if change_pct <= -1 else ICONS[direction]
     return {
-        "direction": direction, "icon": ICONS[direction], "reason": reason,
+        "direction": direction, "icon": icon, "reason": reason,
         "risk": "海外收盤與台股開盤存在時間差，突發消息及開盤後資金流可能改變方向。",
-        "model_version": "projection-3.1", "flat_pct": FLAT_PCT,
+        "model_version": "projection-4.1", "flat_pct": FLAT_PCT,
         "base_date": last["date"], "base_close": last["close"], "estimated_close": estimate,
         "estimated_range": {"low": round(max(0, estimate - spread), 2), "high": round(estimate + spread, 2)},
         "estimated_change": change, "estimated_change_pct": change_pct,
@@ -159,7 +179,7 @@ def forecast_inputs(day, strict=True, as_of=None):
                          "us_target": len(US), "day_futures_available": day_is_current,
                          "overnight_available": night_is_current},
         "inputs": {"twse": {"source": history["source"], "rows": closes[-11:]},
-                   "us": us, "day_futures": regular if day_is_current else None,
+                   "us": us, "asia": asia, "news": recent_event, "day_futures": regular if day_is_current else None,
                    "night": night if night_is_current else None},
     }
 
@@ -184,6 +204,30 @@ def publish_outlook(now):
             return
     outlook["generated_at"] = datetime.now(TZ).isoformat(timespec="seconds")
     write("outlook.json", outlook)
+
+
+def publish_morning_slot(now):
+    """Freeze the first valid 08:40-slot forecast before the existing 08:45 cutoff."""
+    day = now.date()
+    cutoff = datetime.combine(day, LOCK, TZ)
+    rows = read("predictions.json")["rows"]
+    existing = next((row for row in rows if row["date"] == day.isoformat()), None)
+    if existing:
+        return existing
+    if not datetime.combine(day, MORNING_SLOT, TZ) <= now < cutoff or not is_session(day):
+        return None
+    draft = forecast_inputs(day, as_of=now)
+    published = datetime.now(TZ)
+    if not now <= published < cutoff:
+        return None
+    forecast = {**draft, "date": day.isoformat(), "time": "08:40", "status": "locked", "on_time": True,
+                "captured_at": published.isoformat(), "locked_at": published.isoformat(),
+                "cutoff_at": cutoff.isoformat(), "run_id": os.getenv("GITHUB_RUN_ID")}
+    readback = read("predictions.json")
+    if not any(row["date"] == forecast["date"] for row in readback["rows"]):
+        readback["rows"].append(forecast)
+        write("predictions.json", readback)
+    return forecast
 
 
 def capture_forecast(now):
@@ -244,9 +288,12 @@ def verify(close, previous, prediction):
         return outcome
     captured, cutoff, locked = (datetime.fromisoformat(prediction[k])
                                 for k in ("captured_at", "cutoff_at", "locked_at"))
+    morning_slot = prediction.get("time") == "08:40"
+    in_window = (cutoff - timedelta(minutes=5) <= captured <= locked < cutoff if morning_slot else
+                 cutoff - timedelta(minutes=5) <= captured < cutoff <= locked < cutoff + timedelta(minutes=1))
     valid = (prediction["status"] == "locked" and
              cutoff.astimezone(TZ) == datetime.fromisoformat(close["date"] + "T08:45:00+08:00")
-             and cutoff - timedelta(minutes=5) <= captured < cutoff <= locked < cutoff + timedelta(minutes=1))
+             and in_window)
     outcome.update(prediction_sha256=hashlib.sha256(
         json.dumps(prediction, sort_keys=True, ensure_ascii=False).encode()).hexdigest(),
         direction=prediction["direction"], locked_at=prediction["locked_at"],
