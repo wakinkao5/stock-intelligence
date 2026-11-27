@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-27T19:28:41+08:00",
+  "updated_at": "2026-11-27T19:29:44+08:00",
   "note": "Delayed daily close; individual quote dates shown. Unavailable symbols retain prior verified date.",
   "rows": [
     {
@@ -12,7 +12,8 @@
       "exchange_timezone": "America/New_York",
       "session_complete": true,
       "source": "Yahoo Finance 延遲日線",
-      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EIXIC?range=10d&interval=1d"
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EIXIC?range=10d&interval=1d",
+      "updated_at": "2026-11-27T19:29:44+08:00"
     },
     {
       "name": "費城半導體",
@@ -24,7 +25,8 @@
       "exchange_timezone": "America/New_York",
       "session_complete": true,
       "source": "Yahoo Finance 延遲日線",
-      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5ESOX?range=10d&interval=1d"
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5ESOX?range=10d&interval=1d",
+      "updated_at": "2026-11-27T19:29:44+08:00"
     },
     {
       "name": "NVIDIA",
@@ -36,7 +38,8 @@
       "exchange_timezone": "America/New_York",
       "session_complete": true,
       "source": "Yahoo Finance 延遲日線",
-      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/NVDA?range=10d&interval=1d"
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/NVDA?range=10d&interval=1d",
+      "updated_at": "2026-11-27T19:29:44+08:00"
     },
     {
       "name": "台積電 ADR",
@@ -48,7 +51,8 @@
       "exchange_timezone": "America/New_York",
       "session_complete": true,
       "source": "Yahoo Finance 延遲日線",
-      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/TSM?range=10d&interval=1d"
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/TSM?range=10d&interval=1d",
+      "updated_at": "2026-11-27T19:29:44+08:00"
     },
     {
       "name": "日經 225",
@@ -60,7 +64,9 @@
       "exchange_timezone": "Asia/Tokyo",
       "session_complete": true,
       "source": "Yahoo Finance 延遲日線",
-      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EN225?range=10d&interval=1d"
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EN225?range=10d&interval=1d",
+      "session_end": "2026-11-27T15:30:00+09:00",
+      "updated_at": "2026-11-27T19:29:44+08:00"
     },
     {
       "name": "道瓊工業指數",
@@ -72,7 +78,8 @@
       "exchange_timezone": "America/New_York",
       "session_complete": true,
       "source": "Yahoo Finance 延遲日線",
-      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EDJI?range=10d&interval=1d"
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EDJI?range=10d&interval=1d",
+      "updated_at": "2026-11-27T19:29:44+08:00"
     },
     {
       "name": "S&P 500",
@@ -84,7 +91,8 @@
       "exchange_timezone": "America/New_York",
       "session_complete": true,
       "source": "Yahoo Finance 延遲日線",
-      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?range=10d&interval=1d"
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EGSPC?range=10d&interval=1d",
+      "updated_at": "2026-11-27T19:29:44+08:00"
     },
     {
       "name": "韓國 KOSPI",
@@ -96,7 +104,9 @@
       "exchange_timezone": "Asia/Seoul",
       "session_complete": true,
       "source": "Yahoo Finance 延遲日線",
-      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EKS11?range=10d&interval=1d"
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EKS11?range=10d&interval=1d",
+      "session_end": "2026-11-27T15:00:00+09:00",
+      "updated_at": "2026-11-27T19:29:44+08:00"
     },
     {
       "name": "上櫃指數",
@@ -108,7 +118,8 @@
       "session_complete": true,
       "exchange_timezone": "Asia/Taipei",
       "source": "櫃買中心正式收盤",
-      "source_url": "https://www.tpex.org.tw/openapi/v1/tpex_index"
+      "source_url": "https://www.tpex.org.tw/openapi/v1/tpex_index",
+      "updated_at": "2026-11-27T19:29:44+08:00"
     },
     {
       "name": "台指期日盤",
@@ -137,14 +148,16 @@
     {
       "name": "香港恆生指數",
       "symbol": "^HSI",
-      "date": "2026-11-26",
-      "close": 22226.88,
-      "change": 260.87,
-      "change_pct": 1.19,
+      "date": "2026-11-27",
+      "close": 22694.7695,
+      "change": 467.8887,
+      "change_pct": 2.11,
       "exchange_timezone": "Asia/Hong_Kong",
       "session_complete": true,
-      "source": "Financial Times 延遲日線",
-      "source_url": "https://markets.ft.markitdigital.com/data/indices/tearsheet/historical?s=HSI%3AHKG"
+      "source": "Yahoo Finance 延遲日線",
+      "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EHSI?range=10d&interval=1d",
+      "session_end": "2026-11-27T16:10:00+08:00",
+      "updated_at": "2026-11-27T19:29:44+08:00"
     }
   ],
   "source_errors": {}
