@@ -1,19 +1,19 @@
 {
   "direction": "偏空",
   "icon": "🌧️",
-  "reason": "NASDAQ -0.62%、費城半導體 -0.65%、NVIDIA -3.91%、台積電 ADR -1.96%；上一交易日收盤 39,151.81；台股近 5 日 +1.89%、近 10 日 -9.14%；臺指期日盤 +3.49%；當日夜盤日報尚缺",
+  "reason": "NASDAQ -0.62%、費城半導體 -0.65%、NVIDIA -3.91%、台積電 ADR -1.96%；上一交易日收盤 39,308.08；台股近 5 日 +9.09%、近 10 日 -10.00%；臺指期日盤 -0.33%；當日夜盤日報尚缺",
   "risk": "海外收盤與台股開盤存在時間差，突發消息及開盤後資金流可能改變方向。",
   "model_version": "projection-3.1",
   "flat_pct": 0.3,
-  "base_date": "2026-11-26",
-  "base_close": 39151.81,
-  "estimated_close": 38326.88,
+  "base_date": "2026-11-27",
+  "base_close": 39308.08,
+  "estimated_close": 38501.89,
   "estimated_range": {
-    "low": 36798.36,
-    "high": 39855.4
+    "low": 37004.78,
+    "high": 39999.0
   },
-  "estimated_change": -824.93,
-  "estimated_change_pct": -2.11,
+  "estimated_change": -806.19,
+  "estimated_change_pct": -2.05,
   "completeness": {
     "twse_sessions": 11,
     "us_count": 4,
@@ -25,11 +25,6 @@
     "twse": {
       "source": "TWSE official FMTQIK daily market statistics",
       "rows": [
-        {
-          "date": "2026-11-12",
-          "close": 43091.87,
-          "trade_value": 1056842457091
-        },
         {
           "date": "2026-11-13",
           "close": 43675.12,
@@ -81,6 +76,12 @@
           "close": 39151.81,
           "trade_value": 837652988083,
           "source": "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&date=20261126&type=IND"
+        },
+        {
+          "date": "2026-11-27",
+          "close": 39308.08,
+          "trade_value": 681609604843,
+          "source": "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&date=20261127&type=IND"
         }
       ]
     },
@@ -137,23 +138,23 @@
     "day_futures": {
       "symbol": "TX",
       "contract": "202612",
-      "trade_date": "2026-11-26",
-      "session_start": "2026-11-26T08:45:00+08:00",
-      "session_end": "2026-11-26T13:45:00+08:00",
-      "last": 39455,
-      "change": 1332,
-      "change_pct": 3.49,
-      "reference_settlement": 38123,
+      "trade_date": "2026-11-27",
+      "session_start": "2026-11-27T08:45:00+08:00",
+      "session_end": "2026-11-27T13:45:00+08:00",
+      "last": 39363,
+      "change": -129,
+      "change_pct": -0.33,
+      "reference_settlement": 39492,
       "verified": true,
       "source": "TAIFEX",
       "quote_type": "official_regular_daily_report",
       "source_url": "https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=0&commodity_id=TX",
-      "settlement_source_url": "https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=0&commodity_id=TX&queryDate=2026%2F11%2F25",
-      "updated_at": "2026-11-26T16:08:32+08:00"
+      "settlement_source_url": "https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=0&commodity_id=TX&queryDate=2026%2F11%2F26",
+      "updated_at": "2026-11-27T17:05:09+08:00"
     },
     "night": null
   },
-  "date": "2026-11-27",
+  "date": "2026-11-30",
   "status": "provisional",
-  "generated_at": "2026-11-26T18:16:13+08:00"
+  "generated_at": "2026-11-27T17:05:22+08:00"
 }

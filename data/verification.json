@@ -25,6 +25,20 @@
       "source": "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&date=20261126&type=IND",
       "status": "unlocked",
       "lock_status": "missed"
+    },
+    {
+      "date": "2026-11-27",
+      "close": 39308.08,
+      "previous": {
+        "date": "2026-11-26",
+        "close": 39151.81,
+        "trade_value": 837652988083,
+        "source": "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&date=20261126&type=IND"
+      },
+      "change_pct": 0.3991386349698775,
+      "source": "https://www.twse.com.tw/rwd/zh/afterTrading/MI_INDEX?response=json&date=20261127&type=IND",
+      "status": "unlocked",
+      "lock_status": "missed"
     }
   ],
   "stats": {
@@ -33,7 +47,7 @@
     "valid": 0,
     "correct": 0,
     "incorrect": 0,
-    "unlocked": 2,
+    "unlocked": 3,
     "late": 0,
     "overall": null,
     "last5": null,
