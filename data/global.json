@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-27T19:29:44+08:00",
+  "updated_at": "2026-11-27T23:39:20+08:00",
   "note": "Delayed daily close; individual quote dates shown. Unavailable symbols retain prior verified date.",
   "rows": [
     {
@@ -160,5 +160,9 @@
       "updated_at": "2026-11-27T19:29:44+08:00"
     }
   ],
-  "source_errors": {}
+  "source_errors": {
+    "^N225": "來源回傳較舊的 2026-11-26，保留 2026-11-27 行情",
+    "^KS11": "來源回傳較舊的 2026-11-26，保留 2026-11-27 行情",
+    "TPEX": "行情來源未回傳有效報價"
+  }
 }
