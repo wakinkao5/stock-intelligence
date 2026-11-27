@@ -1,0 +1,11 @@
+{
+  "trading_date": "2026-11-27",
+  "slot": "08:40",
+  "checked_at": "2026-11-27T08:41:45+08:00",
+  "verified_quotes": [],
+  "summary": "美國感恩節休市，無新增現貨收盤。台股盤前預測震盪偏弱，預估收盤較前日下跌0.2%至0.8%；信心偏低。參考來源：https://www.reuters.com/business/nasdaq-futures-slide-over-2-fresh-us-tariff-concerns-inflation-data-focus-2026-11-25/ 及 https://www.ftvnews.com.tw/news/detail/2026B27W0063",
+  "missing": [
+    "道瓊、標普500、NASDAQ、費城半導體、NVIDIA、台積電ADR：11/26休市，無新收盤；前次行情公開再利用權未確認",
+    "台指期夜盤、台積電期貨、前一日台股收盤：公開再利用權未確認"
+  ]
+}
