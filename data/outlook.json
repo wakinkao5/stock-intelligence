@@ -1,25 +1,25 @@
 {
   "direction": "偏多",
   "icon": "☀️",
-  "reason": "NASDAQ +2.31%、費城半導體 +4.69%、NVIDIA +0.80%、台積電 ADR +3.21%；上一交易日收盤 39,308.08；台股近 5 日 +9.09%、近 10 日 -10.00%；臺指期日盤 -0.33%；當日夜盤日報尚缺",
+  "reason": "NASDAQ +2.31%、費城半導體 +4.69%、NVIDIA +0.80%、台積電 ADR +3.21%；上一交易日收盤 39,308.08；台股近 5 日 +9.09%、近 10 日 -10.00%；臺指期日盤 -0.33%；臺指期夜盤 -0.50%；亞股 日經 225 2026-11-27 +2.11%、韓國 KOSPI 2026-11-27 +4.34%、香港恆生指數 2026-11-27 +2.11%",
   "risk": "海外收盤與台股開盤存在時間差，突發消息及開盤後資金流可能改變方向。",
   "model_version": "projection-4.1",
   "flat_pct": 0.3,
   "base_date": "2026-11-27",
   "base_close": 39308.08,
-  "estimated_close": 40253.5,
+  "estimated_close": 40115.52,
   "estimated_range": {
-    "low": 38756.39,
-    "high": 41750.61
+    "low": 38618.41,
+    "high": 41612.63
   },
-  "estimated_change": 945.42,
-  "estimated_change_pct": 2.41,
+  "estimated_change": 807.44,
+  "estimated_change_pct": 2.05,
   "completeness": {
     "twse_sessions": 11,
     "us_count": 4,
     "us_target": 4,
     "day_futures_available": true,
-    "overnight_available": false
+    "overnight_available": true
   },
   "inputs": {
     "twse": {
@@ -143,7 +143,50 @@
         "updated_at": "2026-11-28T04:21:32+08:00"
       }
     ],
-    "asia": [],
+    "asia": [
+      {
+        "name": "日經 225",
+        "symbol": "^N225",
+        "date": "2026-11-27",
+        "close": 58711.1094,
+        "change": 1211.9492,
+        "change_pct": 2.11,
+        "exchange_timezone": "Asia/Tokyo",
+        "session_complete": true,
+        "source": "Yahoo Finance 延遲日線",
+        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EN225?range=10d&interval=1d",
+        "session_end": "2026-11-27T15:30:00+09:00",
+        "updated_at": "2026-11-27T19:29:44+08:00"
+      },
+      {
+        "name": "韓國 KOSPI",
+        "symbol": "^KS11",
+        "date": "2026-11-27",
+        "close": 4915.6802,
+        "change": 204.4702,
+        "change_pct": 4.34,
+        "exchange_timezone": "Asia/Seoul",
+        "session_complete": true,
+        "source": "Yahoo Finance 延遲日線",
+        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EKS11?range=10d&interval=1d",
+        "session_end": "2026-11-27T15:00:00+09:00",
+        "updated_at": "2026-11-27T19:29:44+08:00"
+      },
+      {
+        "name": "香港恆生指數",
+        "symbol": "^HSI",
+        "date": "2026-11-27",
+        "close": 22694.7695,
+        "change": 467.8887,
+        "change_pct": 2.11,
+        "exchange_timezone": "Asia/Hong_Kong",
+        "session_complete": true,
+        "source": "Yahoo Finance 延遲日線",
+        "source_url": "https://query1.finance.yahoo.com/v8/finance/chart/%5EHSI?range=10d&interval=1d",
+        "session_end": "2026-11-27T16:10:00+08:00",
+        "updated_at": "2026-11-27T19:29:44+08:00"
+      }
+    ],
     "news": null,
     "day_futures": {
       "symbol": "TX",
@@ -162,9 +205,25 @@
       "settlement_source_url": "https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=0&commodity_id=TX&queryDate=2026%2F11%2F26",
       "updated_at": "2026-11-27T17:05:09+08:00"
     },
-    "night": null
+    "night": {
+      "symbol": "TX",
+      "contract": "202612",
+      "trade_date": "2026-11-30",
+      "session_start": "2026-11-27T15:00:00+08:00",
+      "session_end": "2026-11-28T05:00:00+08:00",
+      "last": 39153,
+      "change": -197,
+      "change_pct": -0.5,
+      "reference_settlement": 39350,
+      "verified": true,
+      "source": "TAIFEX",
+      "quote_type": "official_after_hours_daily_report",
+      "source_url": "https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=1",
+      "settlement_source_url": "https://www.taifex.com.tw/cht/3/futDailyMarketExcel?marketCode=0&commodity_id=TX&queryDate=2026%2F11%2F27",
+      "updated_at": "2026-11-28T10:51:34+08:00"
+    }
   },
   "date": "2026-11-30",
   "status": "provisional",
-  "generated_at": "2026-11-28T04:21:35+08:00"
+  "generated_at": "2026-11-28T10:51:35+08:00"
 }
